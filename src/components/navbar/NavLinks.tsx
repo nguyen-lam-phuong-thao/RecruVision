@@ -9,7 +9,7 @@ const navItems = [
 
 const NavLinks: React.FC = () => {
   return (
-    <nav className="flex gap-12 justify-between max-md:gap-8 max-sm:hidden">
+    <nav className="flex gap-12 justify-between max-md:gap-8 max-sm:hidden mx-7">
       {navItems.map((item) => (
         <a
           key={item.label}
