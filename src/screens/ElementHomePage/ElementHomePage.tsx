@@ -1,4 +1,4 @@
-import React, { type JSX } from "react";
+import { type JSX } from "react";
 import { CallToActionSection } from "./sections/CallToActionSection";
 import { FeaturesSection } from "./sections/FeaturesSection";
 import { FooterSection } from "./sections/FooterSection";

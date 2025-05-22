@@ -1,5 +1,5 @@
 import { MailIcon, PhoneIcon } from "lucide-react";
-import React, { type JSX } from "react";
+import { type JSX } from "react";
 
 export const FooterSection = (): JSX.Element => {
   const footerLinks = [
