@@ -39,7 +39,7 @@ export const WhyChooseSection = (): JSX.Element => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mx-5">
           {features.map((feature, index) => (
             <Card
               key={index}
