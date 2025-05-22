@@ -6,13 +6,15 @@ import AuthButtons from "./AuthButtons.tsx";
 
 const Navbar: React.FC = () => {
   return (
-    <header className="flex items-center px-5 py-5 bg-white max-md:px-5 max-sm:px-2 rounded-full">
-      <div className="flex justify-center items-center w-full max-md:gap-5">
-        <NavbarLogo/>
-        <NavLinks />
-        <AuthButtons />
-      </div>
-    </header>
+    <div className="flex justify-center w-full">
+      <header className="flex items-center px-6 py-3 bg-white/90 max-md:px-4 max-sm:px-2 rounded-full w-fit">
+        <div className="flex justify-center items-center gap-4 max-md:gap-3">
+          <NavbarLogo/>
+          <NavLinks />
+          <AuthButtons />
+        </div>
+      </header>
+    </div>
   );
 };
 
