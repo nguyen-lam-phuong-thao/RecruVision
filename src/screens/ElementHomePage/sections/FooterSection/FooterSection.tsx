@@ -32,7 +32,7 @@ export const FooterSection = (): JSX.Element => {
   return (
     <footer className="w-full bg-gray-900 py-12">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 ml-20">
           <div>
             <h2 className="font-bold text-white text-xl leading-6 mb-4">
               RecruVision
@@ -64,7 +64,7 @@ export const FooterSection = (): JSX.Element => {
           ))}
         </div>
 
-        <div className="mt-12 pt-6 border-t border-gray-800">
+        <div className="mt-12 pt-6 border-t border-gray-800 ml-10">
           <div className="flex flex-col md:flex-row md:items-center justify-between">
             <div className="text-gray-400 text-base leading-6">
               © 2025 RecruVision. All rights reserved.
@@ -86,7 +86,7 @@ export const FooterSection = (): JSX.Element => {
               </div>
             </div>
 
-            <div className="flex space-x-4 mt-4 md:mt-0">
+            <div className="flex space-x-4 mt-4 md:mt-0 mr-10">
               <a href="#" className="flex items-center justify-center">
                 <img
                   className="w-6 h-6"

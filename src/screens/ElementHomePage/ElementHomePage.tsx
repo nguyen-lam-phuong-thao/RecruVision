@@ -8,7 +8,7 @@ import { WhyChooseSection } from "./sections/WhyChooseSection/WhyChooseSection";
 
 export const ElementHomePage = (): JSX.Element => {
   return (
-    <div className="flex flex-col w-full bg-white rounded-lg overflow-hidden border-[2.67px] border-solid border-[#ced4da]">
+    <div className="flex flex-col w-full overflow-hidden">
       <main className="w-full">
         <TestimonialsSection />
         <WhyChooseSection />

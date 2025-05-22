@@ -18,7 +18,7 @@ export const TestimonialsSection = (): JSX.Element => {
 
   return (
     <section className="relative w-full bg-[#043873] overflow-hidden">
-      <div className="w-full h-[800px] bg-[url(/line-grid---filled-squares.png)] bg-[100%_100%] flex flex-col">
+      <div className="w-full h-[800px] bg-[url(/line-grid---filled-squares.png)] bg-[100%_100%] flex flex-col pt-20">
         {/* Navigation Bar */}
         <div className="fixed top-0 left-0 right-0 z-50 flex justify-center w-full pt-4">
           <Card className="relative w-[900px] h-[70px] rounded-[40px] bg-[#ffffffe6] backdrop-blur-[20px] border-none">
