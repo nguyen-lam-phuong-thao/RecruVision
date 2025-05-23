@@ -1,12 +1,11 @@
-
 import type { RouteObject } from "react-router-dom";
-import { ElementHomePage } from "../screens/ElementHomePage/ElementHomePage";
+import { HomePage } from "../pages/Home/HomePage";
 
 // Define your routes here
 export const routes: RouteObject[] = [
   {
     path: "/",
-    element: <ElementHomePage />,
+    element: <HomePage />,
   },
   {
     path: "*",
