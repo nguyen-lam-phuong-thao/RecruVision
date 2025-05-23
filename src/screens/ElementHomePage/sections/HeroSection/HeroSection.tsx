@@ -1,4 +1,4 @@
-import React, { type JSX } from "react";
+import { type JSX } from "react";
 import { Avatar, AvatarImage } from "../../../../components/ui/avatar";
 import { Card, CardContent } from "../../../../components/ui/card";
 
