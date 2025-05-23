@@ -63,7 +63,7 @@ const featuresData = [
 
 export const FeaturesSection = (): JSX.Element => {
   return (
-    <section className="w-full bg-gray-50 py-16 border-[1px] border-solid border-[#ced4da]">
+    <section className="w-full bg-gray-50 py-16 border-t-[1px] border-b-[1px] border-solid border-[#ced4da]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4 font-['Inter',Helvetica]">
