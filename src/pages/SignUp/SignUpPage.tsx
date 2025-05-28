@@ -7,14 +7,15 @@ import { FcGoogle } from 'react-icons/fc';
 import { FaLinkedin } from 'react-icons/fa';
 
 
-export const LoginPage = (): JSX.Element => {
+export const SignUpPage = (): JSX.Element => {
   
   return (
     <div className="min-h-screen bg-[url(/bg-wave.png)]">
+      
       <main className="w-full flex items-start justify-center pt-[70px] pb-[50px]">
         <div className="flex justify-center items-center mt-[30px]">
           <div className="w-[500px] bg-white rounded-lg shadow-lg p-6 scale-95">
-            <Tabs.Root defaultValue="login" className="w-full">
+            <Tabs.Root defaultValue="signup" className="w-full">
               <Tabs.List className="flex border-b border-gray-200 mb-4">
                 <Tabs.Trigger
                   value="login"
@@ -187,6 +188,7 @@ export const LoginPage = (): JSX.Element => {
           </div>
         </div>
       </main>
+     
     </div>
   );
 };

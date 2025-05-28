@@ -7,7 +7,7 @@ import {
     NavigationMenuList,
 } from "./navigation-menu";
 import { type JSX } from "react";
-
+import { Link } from "react-router-dom";
 export const Navigation = ():JSX.Element => {
     const navItems = [
         { label: "Home", href: "#" },
@@ -52,15 +52,19 @@ export const Navigation = ():JSX.Element => {
 
                             {/* Auth Buttons */}
                             <div className="flex items-center ml-8">
+                                <Link to="/login">
                                 <Button
                                     variant="ghost"
-                                    className="font-bold text-black text-base leading-5 font-sans"
+                                    className="font-bold text-black text-base leading-5 font-sans cursor-pointer"
                                 >
                                     Login
                                 </Button>
-                                <Button className="ml-4 w-[100px] h-[40px] bg-black rounded-lg text-white text-base font-normal font-sans">
+                                </Link>
+                                <Link to="/signup">
+                                <Button className="ml-4 w-[100px] h-[40px] bg-black rounded-lg text-white text-base font-normal font-sans cursor-pointer">
                                     Sign Up
                                 </Button>
+                                </Link>
                             </div>
                         </div>
                     </div>
