@@ -10,12 +10,12 @@ import { FaLinkedin } from 'react-icons/fa';
 export const LoginPage = (): JSX.Element => {
   
   return (
-    <div className="min-h-screen bg-[url(/bg-wave.png)]">
+    <div className="min-h-screen bg-[url(/images/png/bg-wave.png)]">
       <main className="w-full flex items-start justify-center pt-[70px] pb-[50px]">
         <div className="flex justify-center items-center mt-[30px]">
           <div className="w-[500px] bg-white rounded-lg shadow-lg p-6 scale-95">
             <Tabs.Root defaultValue="login" className="w-full">
-              <Tabs.List className="flex border-b border-gray-200 mb-4">
+              <Tabs.List className="grid grid-cols-2 border-b border-gray-200 mb-4">
                 <Tabs.Trigger
                   value="login"
                   className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 data-[state=active]:text-[#4F9CF9] data-[state=active]:border-b-2 data-[state=active]:border-[#4F9CF9]"

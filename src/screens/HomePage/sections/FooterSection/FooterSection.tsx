@@ -91,21 +91,21 @@ export const FooterSection = (): JSX.Element => {
                 <img
                   className="w-6 h-6"
                   alt="Social media icon"
-                  src="/frame-13.svg"
+                  src="/images/svg/frame-13.svg"
                 />
               </a>
               <a href="#" className="flex items-center justify-center">
                 <img
                   className="w-6 h-6"
                   alt="Social media icon"
-                  src="/frame-17.svg"
+                  src="/images/svg/frame-17.svg"
                 />
               </a>
               <a href="#" className="flex items-center justify-center">
                 <img
                   className="w-6 h-6"
                   alt="Social media icon"
-                  src="/frame-2.svg"
+                  src="/images/svg/frame-2.svg"
                 />
               </a>
             </div>

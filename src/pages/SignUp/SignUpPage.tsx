@@ -10,8 +10,7 @@ import { FaLinkedin } from 'react-icons/fa';
 export const SignUpPage = (): JSX.Element => {
   
   return (
-    <div className="min-h-screen bg-[url(/bg-wave.png)]">
-      
+    <div className="min-h-screen bg-[url(/images/png/bg-wave.png)]">
       <main className="w-full flex items-start justify-center pt-[70px] pb-[50px]">
         <div className="flex justify-center items-center mt-[30px]">
           <div className="w-[500px] bg-white rounded-lg shadow-lg p-6 scale-95">

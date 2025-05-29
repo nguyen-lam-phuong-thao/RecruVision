@@ -27,7 +27,7 @@ export const Navigation = (): JSX.Element => {
                                 <img
                                     className="w-[50px] h-[42px] -ml-1 object-cover cursor-pointer"
                                     alt="Logo"
-                                    src="/logo.svg"
+                                    src="/images/svg/logo.svg"
                                 />
                                 <span className="ml-4 font-bold text-[#4f9cf9] text-xl leading-6 font-sans cursor-pointer">
                                     RecruVision
