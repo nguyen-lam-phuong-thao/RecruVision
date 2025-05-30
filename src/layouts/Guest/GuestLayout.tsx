@@ -5,16 +5,16 @@ import { Footer } from "../../components/ui/Footer";
 
 export const GuestLayout = () => {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <header>
         <Navigation />
       </header>
-      <main>
+      <main className="flex-grow">
         <Outlet />
       </main>
       <footer>
         <Footer />
       </footer>
-    </>
+    </div>
   )
 }
