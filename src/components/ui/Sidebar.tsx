@@ -61,13 +61,13 @@ export const Sidebar = () => {
                 <SidebarItem
                     icon={<User className="w-5 h-5" />}
                     text="Profile"
-                    to="/profile"
+                    to="/app/profile"
                     collapsed={collapsed}
                 />
                 <SidebarItem
                     icon={<LifeBuoy className="w-5 h-5" />}
                     text="Support Center"
-                    to="/support"
+                    to="/app/support-center"
                     collapsed={collapsed}
                 />
                 <SidebarItem

@@ -70,9 +70,11 @@ export const LoginPage = (): JSX.Element => {
                     Forgot Password?
                   </Link>
                 </div>
+                <Link to="/app">
                 <button className="w-full mt-4 bg-[#4F9CF9] text-white py-2 px-4 rounded-md hover:bg-[#3d7bc8] focus:outline-none focus:ring-2 focus:ring-[#4F9CF9] focus:ring-offset-2">
                   Login
                 </button>
+                </Link>
 
                 <div className="mt-6">
                   <div className="relative">
