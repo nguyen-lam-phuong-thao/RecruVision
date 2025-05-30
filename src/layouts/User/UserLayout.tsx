@@ -1,20 +1,13 @@
-
-import { Navigation } from "../../components/ui/Navigation";
-import { Outlet } from "react-router-dom";
-import { Footer } from "../../components/ui/Footer";
-
-export const UserLayout = () => {
+import { type JSX } from 'react'
+import { Sidebar } from '../../components/ui/Sidebar'
+import { Outlet } from 'react-router-dom'
+export const UserLayout = (): JSX.Element => {
   return (
-    <>
-      <header>
-        <Navigation />
-      </header>
-      <main>
+    <div className='flex min-h-screen'>
+      <div className=""><Sidebar/></div>
+      <div className="flex-1 p-6">
         <Outlet />
-      </main>
-      <footer>
-        <Footer />
-      </footer>
-    </>
+      </div>
+    </div>
   )
 }
