@@ -158,7 +158,7 @@ export const ResumeBuilder = () => {
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-4">
                                 <Dialog.Title className="text-xl font-semibold text-gray-900">
-                                    Re-import your career history
+                                    Import your career history
                                 </Dialog.Title>
                                 <Dialog.Close className="text-gray-500 hover:text-gray-700">
                                     <X className="w-5 h-5" />
