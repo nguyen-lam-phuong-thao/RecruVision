@@ -5,7 +5,7 @@ const featuresData = [
   {
     id: 1,
     title: "AI-Powered Scoring",
-    icon: "/frame-6.svg",
+    icon: "/images/svg/frame-6.svg",
     description:
       "Our advanced AI algorithm evaluates candidates based on multiple criteria:",
     items: [
@@ -17,7 +17,7 @@ const featuresData = [
   {
     id: 2,
     title: "CV Optimization",
-    icon: "/frame.svg",
+    icon: "/images/svg/frame.svg",
     description: "Intelligent CV analysis and enhancement features:",
     items: [
       "Automated keyword extraction",
@@ -28,7 +28,7 @@ const featuresData = [
   {
     id: 3,
     title: "Virtual Interviews",
-    icon: "/frame-10.svg",
+    icon: "/images/svg/frame-10.svg",
     description: "Complete video interview solution with:",
     items: [
       "AI-powered behavior analysis",
@@ -40,7 +40,7 @@ const featuresData = [
   {
     id: 4,
     title: "Career Path Guidance",
-    icon: "/frame-22.svg",
+    icon: "/images/svg/frame-22.svg",
     description: "Comprehensive career development tools:",
     items: [
       "Skill development mapping",
@@ -51,7 +51,7 @@ const featuresData = [
   {
     id: 5,
     title: "Centralized CV Management",
-    icon: "/frame-15.svg",
+    icon: "/images/svg/frame-15.svg",
     description: "Advanced document management system:",
     items: [
       "Smart categorization",
@@ -106,7 +106,7 @@ export const FeaturesSection = (): JSX.Element => {
                         <img
                           className="w-4 h-4"
                           alt="Checkmark"
-                          src="/frame-3.svg"
+                          src="/images/svg/frame-3.svg"
                         />
                       </span>
                       <span className="text-base text-gray-600 font-['Inter',Helvetica]">

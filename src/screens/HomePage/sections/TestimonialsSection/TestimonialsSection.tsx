@@ -8,7 +8,7 @@ export const TestimonialsSection = (): JSX.Element => {
       id: 1,
       name: "Sarah Johnson",
       role: "Business Analysis",
-      image: "..//img.png",
+      image: "/images/png/profile-1.png",
       quote:
         '"The AI interview practice helped me land my dream job at a top tech company. The feedback was incredibly detailed and helpful."',
     },
@@ -16,7 +16,7 @@ export const TestimonialsSection = (): JSX.Element => {
       id: 2,
       name: "Mark Thompson",
       role: "Marketing Analyst",
-      image: "..//img-1.png",
+      image: "/images/png/img-1.png",
       quote:
         '"The AI-powered scoring system is incredibly accurate. It\'s like having an expert recruiter working 24/7."',
     },
@@ -24,7 +24,7 @@ export const TestimonialsSection = (): JSX.Element => {
       id: 3,
       name: "Lisa Chen",
       role: "Back end developer",
-      image: "..//img-2.png",
+      image: "/images/png/img-2.png",
       quote:
         '"The CV optimization tool helped me understand exactly what recruiters were looking for. I received multiple interview calls within weeks."',
     },

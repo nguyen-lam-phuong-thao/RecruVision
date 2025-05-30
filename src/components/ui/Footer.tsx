@@ -1,7 +1,7 @@
 import { MailIcon, PhoneIcon } from "lucide-react";
 import { type JSX } from "react";
 
-export const FooterSection = (): JSX.Element => {
+export const Footer = (): JSX.Element => {
   const footerLinks = [
     {
       title: "Product",
@@ -91,21 +91,21 @@ export const FooterSection = (): JSX.Element => {
                 <img
                   className="w-6 h-6"
                   alt="Social media icon"
-                  src="/images/svg/frame-13.svg"
+                  src="/frame-13.svg"
                 />
               </a>
               <a href="#" className="flex items-center justify-center">
                 <img
                   className="w-6 h-6"
                   alt="Social media icon"
-                  src="/images/svg/frame-17.svg"
+                  src="/frame-17.svg"
                 />
               </a>
               <a href="#" className="flex items-center justify-center">
                 <img
                   className="w-6 h-6"
                   alt="Social media icon"
-                  src="/images/svg/frame-2.svg"
+                  src="/frame-2.svg"
                 />
               </a>
             </div>

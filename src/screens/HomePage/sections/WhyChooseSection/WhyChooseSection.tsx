@@ -3,12 +3,12 @@ import { Card, CardContent } from "../../../../components/ui/card";
 
 const features = [
   {
-    icon: "/frame-4.svg",
+    icon: "/images/svg/frame-4.svg",
     title: "Smart CV Optimizer",
     description: ["Get AI-powered suggestions to improve", "your CV instantly"],
   },
   {
-    icon: "/frame-5.svg",
+    icon: "/images/svg/frame-5.svg",
     title: "Interview Practice",
     description: [
       "Practice with AI interviewers and get",
@@ -16,7 +16,7 @@ const features = [
     ],
   },
   {
-    icon: "/frame-8.svg",
+    icon: "/images/svg/frame-8.svg",
     title: "Student friendly",
     description: [
       "Affordable plans designed for students",
