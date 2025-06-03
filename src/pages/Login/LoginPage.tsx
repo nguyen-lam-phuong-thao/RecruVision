@@ -5,7 +5,6 @@ import * as Checkbox from '@radix-ui/react-checkbox';
 import { CheckIcon, EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { FcGoogle } from 'react-icons/fc';
 import { FaLinkedin } from 'react-icons/fa';
-import api from '../../api/index'
 import { login } from "../../services/authService";
 
 
