@@ -15,98 +15,30 @@ export const SignUpPage = (): JSX.Element => {
         <div className="flex justify-center items-center mt-[30px]">
           <div className="w-[500px] bg-white rounded-lg shadow-lg p-6 scale-95">
             <Tabs.Root defaultValue="signup" className="w-full">
-              <Tabs.List className="flex border-b border-gray-200 mb-4">
-                <Tabs.Trigger
-                  value="login"
-                  className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 data-[state=active]:text-[#4F9CF9] data-[state=active]:border-b-2 data-[state=active]:border-[#4F9CF9]"
-                >
-                  Login
-                </Tabs.Trigger>
+              <Tabs.List className="border-b border-gray-200 mb-4">
                 <Tabs.Trigger
                   value="signup"
-                  className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 data-[state=active]:text-[#4F9CF9] data-[state=active]:border-b-2 data-[state=active]:border-[#4F9CF9]"
+                  className="px-4 py-2 text-2xl font-medium text-[#4F9CF9] border-b-1 border-gray-200 w-full"
                 >
                   Signup
                 </Tabs.Trigger>
               </Tabs.List>
 
-              <Tabs.Content value="login" className="space-y-4">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input
-                      type="email"
-                      placeholder="Enter Your Email"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F9CF9] focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input
-                      type="password"
-                      placeholder="Enter Your Password"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F9CF9] focus:border-transparent"
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center">
-                    <Checkbox.Root
-                      id="remember"
-                      className="w-4 h-4 border border-gray-300 rounded focus:ring-2 focus:ring-[#4F9CF9]"
-                    >
-                      <Checkbox.Indicator className="flex items-center justify-center">
-                        <CheckIcon className="w-4 h-4 text-[#4F9CF9]" />
-                      </Checkbox.Indicator>
-                    </Checkbox.Root>
-                    <label htmlFor="remember" className="ml-2 text-sm text-gray-600">
-                      Remember me
-                    </label>
-                  </div>
-                  <Link
-                    to="/forgot-password"
-                    className="text-sm text-[#4F9CF9] hover:text-[#3d7bc8]"
-                  >
-                    Forgot Password?
-                  </Link>
-                </div>
-                <button className="w-full mt-4 bg-[#4F9CF9] text-white py-2 px-4 rounded-md hover:bg-[#3d7bc8] focus:outline-none focus:ring-2 focus:ring-[#4F9CF9] focus:ring-offset-2">
-                  Login
-                </button>
-
-                <div className="mt-6">
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-300"></div>
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-white text-gray-500">Or continue with</span>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 flex gap-4">
-                    <button
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4F9CF9]"
-                    >
-                      <FcGoogle className="w-5 h-5" />
-                      <span className="text-sm font-medium text-gray-700">Google</span>
-                    </button>
-                    <button
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4F9CF9]"
-                    >
-                      <FaLinkedin className="w-5 h-5 text-[#0077B5]" />
-                      <span className="text-sm font-medium text-gray-700">LinkedIn</span>
-                    </button>
-                  </div>
-                </div>
-              </Tabs.Content>
               <Tabs.Content value="signup" className="space-y-4">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
                     <input
                       type="text"
-                      placeholder="Enter your full name"
+                      placeholder="Enter your first name"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F9CF9] focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                    <input
+                      type="text"
+                      placeholder="Enter your last name"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F9CF9] focus:border-transparent"
                     />
                   </div>

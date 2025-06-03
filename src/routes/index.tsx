@@ -11,6 +11,7 @@ import { AppHome } from "../pages/AppHome/AppHome";
 import { ResumeBuilder } from "../pages/ResumeBuilder/ResumeBuilder";
 import { Profile } from "../pages/Profile/Profile";
 import { SupportCenter } from "../pages/SupportCenter/SupportCenter";
+import Success from "../pages/Success/Success";
 // Define your routes here
 export const routes: RouteObject[] = [
   {
@@ -40,6 +41,10 @@ export const routes: RouteObject[] = [
       {
         path: "/support",
         element: <Support />,
+      },
+      {
+        path: "/success",
+        element: <Success />,
       },
     ],
   },
