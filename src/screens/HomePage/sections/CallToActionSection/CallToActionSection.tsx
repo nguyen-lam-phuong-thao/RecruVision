@@ -1,5 +1,6 @@
 import { type JSX } from "react";
 import { Button } from "../../../../components/ui/button";
+import { Link } from "react-router-dom";
 
 export const CallToActionSection = (): JSX.Element => {
   const circleImages = [
@@ -75,6 +76,13 @@ export const CallToActionSection = (): JSX.Element => {
     },
   ];
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <section className="relative w-full h-[300px] bg-[#043873] overflow-hidden">
       <div className="relative w-full max-w-[1200px] h-[180px] mx-auto py-16">
@@ -109,11 +117,13 @@ export const CallToActionSection = (): JSX.Element => {
             </p>
 
             <div className="mt-8">
-              <Button className="w-[160px] h-[50px] bg-white rounded-lg hover:bg-gray-100">
-                <span className="font-['Inter',Helvetica] font-normal text-blue-600 text-lg">
-                  Sign Up Now
-                </span>
-              </Button>
+              <Link to="/signup">
+                <Button className="w-[160px] h-[50px] bg-white rounded-lg hover:bg-gray-100" onClick={() => {scrollToTop()}}>
+                  <span className="font-['Inter',Helvetica] font-normal text-blue-600 text-lg">
+                    Sign Up Now
+                  </span>
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

@@ -2,8 +2,14 @@
 import { useEffect, useState } from 'react';
 import api from '../../api/index';
 
+interface User {
+  data: {
+    email: string;
+  };
+}
+
 export default function Success() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     api.get('/api/Auth/profile')

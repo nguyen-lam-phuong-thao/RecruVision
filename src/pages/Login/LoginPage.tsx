@@ -5,28 +5,67 @@ import * as Checkbox from '@radix-ui/react-checkbox';
 import { CheckIcon, EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { FcGoogle } from 'react-icons/fc';
 import { FaLinkedin } from 'react-icons/fa';
-import { login } from "../../services/authService";
+import authService, { login } from "../../services/authService";
+import toast, { Toaster } from "react-hot-toast";
+import { AxiosError } from 'axios';
 
+interface FormErrors {
+  email?: string;
+  password?: string;
+}
 
 export const LoginPage = (): JSX.Element => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
   const navigate = useNavigate();
 
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+    
+    if (!email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = 'Invalid email format';
+    }
+    
+    if (!password) {
+      newErrors.password = 'Password is required';
+    } else if (password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters long';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleLogin = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
     try {
-      await login(email, password);
-      alert('Login successful');
-      navigate('/success');
+      const response = await login(email, password);
+      navigate('/app');
+      toast.success('Login successful');
+      console.log("Login successful");
+      const cookie = await authService.getCookie();
+      localStorage.setItem('cookie', cookie.cookieHeader);
+      console.log("Cookie saved: ", cookie);
     } catch (error) {
       console.error('Login failed:', error);
-      alert('Login failed');
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || 'Login failed');
+      } else {
+        toast.error('Login failed');
+      }
     }
   };
 
   return (
     <div className="min-h-screen bg-[url(/images/png/bg-wave.png)]">
+      <Toaster position="top-center" />
       <main className="w-full flex items-start justify-center pt-[70px] pb-[50px]">
         <div className="flex justify-center items-center mt-[30px]">
           <div className="w-[500px] bg-white rounded-lg shadow-lg p-6 scale-95">
@@ -47,10 +86,16 @@ export const LoginPage = (): JSX.Element => {
                     <input
                       type="email"
                       placeholder="Enter Your Email"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F9CF9] focus:border-transparent"
+                      className={`w-full px-3 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F9CF9] focus:border-transparent`}
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (errors.email) {
+                          setErrors({ ...errors, email: undefined });
+                        }
+                      }}
                     />
+                    {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
@@ -58,9 +103,14 @@ export const LoginPage = (): JSX.Element => {
                       <input
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter Your Password"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F9CF9] focus:border-transparent pr-10"
+                        className={`w-full px-3 py-2 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F9CF9] focus:border-transparent pr-10`}
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => {
+                          setPassword(e.target.value);
+                          if (errors.password) {
+                            setErrors({ ...errors, password: undefined });
+                          }
+                        }}
                       />
                       <button
                         type="button"
@@ -74,6 +124,7 @@ export const LoginPage = (): JSX.Element => {
                         )}
                       </button>
                     </div>
+                    {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password}</p>}
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
@@ -97,10 +148,12 @@ export const LoginPage = (): JSX.Element => {
                     Forgot Password?
                   </Link>
                 </div>
-                <button className="w-full mt-4 bg-[#4F9CF9] text-white py-2 px-4 rounded-md hover:bg-[#3d7bc8] focus:outline-none focus:ring-2 focus:ring-[#4F9CF9] focus:ring-offset-2" onClick={handleLogin}>
+                <button 
+                  className="w-full mt-4 bg-[#4F9CF9] text-white py-2 px-4 rounded-md hover:bg-[#3d7bc8] focus:outline-none focus:ring-2 focus:ring-[#4F9CF9] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed" 
+                  onClick={handleLogin}
+                >
                   Login
                 </button>
-
 
                 <div className="mt-6">
                   <div className="relative">

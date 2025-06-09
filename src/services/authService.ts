@@ -16,8 +16,25 @@ export const getProfile = async () => {
   return response.data;
 };
 
-export const register = async (registerDto: any) => {
+export const changePassword = async (currentPassword: string, newPassword: string) => {
+  const response = await api.post('/api/Auth/change-password', { currentPassword, newPassword });
+  return response.data;
+};
+
+interface RegisterDto {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+export const register = async (registerDto: RegisterDto) => {
   const response = await api.post('/api/Auth/register', registerDto);
+  return response.data;
+};
+
+export const getCookie = async () => {
+  const response = await api.get('/api/Auth/cookie-info');
   return response.data;
 };
 
@@ -27,4 +44,6 @@ export default {
   logout,
   getProfile,
   register,
+  changePassword,
+  getCookie
 };

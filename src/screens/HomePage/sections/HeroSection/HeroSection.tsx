@@ -1,5 +1,6 @@
 import { type JSX } from "react";
 import { Button } from "../../../../components/ui/button";
+import { Link } from "react-router-dom";
 
 export const HeroSection = (): JSX.Element => {
 
@@ -19,9 +20,11 @@ export const HeroSection = (): JSX.Element => {
                   Empowering Careers with AI – Smarter Applications, Stronger
                   Interviews.
                 </p>
+                <Link to="/login">
                 <Button className="mt-8 w-[160px] h-[50px] bg-[#4f9cf9] rounded-lg text-white text-lg font-normal font-sans">
                   Get Started
                 </Button>
+                </Link>
               </div>
 
               {/* Image */}
