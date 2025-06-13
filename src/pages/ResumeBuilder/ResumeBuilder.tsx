@@ -1,8 +1,10 @@
-import { Menu, Plus, Search, Upload, HelpCircle, Trash2, ArrowUpDown, Edit, Copy, Trash, ArrowUp, ArrowDown, X, FileText, Linkedin, Clipboard } from 'lucide-react'
+import { Menu, Plus, Search, Upload, HelpCircle, Trash2, ArrowUpDown, ArrowUp, ArrowDown, X, FileText, Linkedin, Clipboard, Edit, Copy, Trash } from 'lucide-react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Tabs from '@radix-ui/react-tabs'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { toast, Toaster } from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 
 type SortDirection = 'asc' | 'desc' | null
 
@@ -11,10 +13,24 @@ interface SortConfig {
     direction: SortDirection
 }
 
+interface Resume {
+    id: string
+    name: string
+    score: number
+    matchedJob: string
+    match: number
+    created: string
+    lastEdited: string
+}
+
 export const ResumeBuilder = () => {
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: '', direction: null })
     const [isImportOpen, setIsImportOpen] = useState(false)
-
+    const [resumes, setResumes] = useState<Resume[]>([])
+    const [isLoading, setIsLoading] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
+    const navigate = useNavigate()
+    
     const handleSort = (key: string) => {
         let direction: SortDirection = 'asc'
         if (sortConfig.key === key) {
@@ -31,8 +47,59 @@ export const ResumeBuilder = () => {
         return <ArrowUpDown className="w-4 h-4" />
     }
 
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (!file) return
+
+        // Validate file type
+        const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+        if (!validTypes.includes(file.type)) {
+            toast.error('Please upload a valid file (PDF, DOC, or DOCX)')
+            return
+        }
+
+        // Validate file size (50MB)
+        if (file.size > 50 * 1024 * 1024) {
+            toast.error('File size should be less than 50MB')
+            return
+        }
+
+        setIsLoading(true)
+        try {
+            // Here you would typically send the file to your backend for processing
+            // For now, we'll simulate the response
+            const newResume: Resume = {
+                id: Date.now().toString(),
+                name: file.name,
+                score: Math.floor(Math.random() * 30) + 70, // Random score between 70-100
+                matchedJob: 'Software Engineer', // This would come from backend analysis
+                match: Math.floor(Math.random() * 20) + 80, // Random match between 80-100
+                created: new Date().toISOString().split('T')[0],
+                lastEdited: new Date().toISOString().split('T')[0]
+            }
+
+            setResumes(prev => [...prev, newResume])
+            toast.success('Resume imported successfully')
+            setIsImportOpen(false)
+        } catch (error) {
+            console.error('Error importing resume:', error)
+            toast.error('Failed to import resume')
+        } finally {
+            setIsLoading(false)
+            // Reset file input
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ''
+            }
+        }
+    }
+
+    const handleBrowseClick = () => {
+        fileInputRef.current?.click()
+    }
+
     return (
         <div>
+            <Toaster position="top-center" />
             <div className='flex justify-between mb-6'>
                 <h1 className='text-2xl font-bold text-[#4F9CF9]'>Resume Builder</h1>
                 <div className='flex gap-2'>
@@ -77,80 +144,96 @@ export const ResumeBuilder = () => {
                     </div>
                 </div>
             </div>
+
+            {/* table */}
             <div className='table-resume'>
-                <div className="overflow-x-auto">
+                <div className="w-full">
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="bg-gray-50 border-b border-gray-200">
-                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
+                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 w-[25%]">
                                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleSort('resume')}>
                                         Resume
                                         {getSortIcon('resume')}
                                     </div>
                                 </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
+                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 w-[10%]">
                                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleSort('score')}>
                                         Score
                                         {getSortIcon('score')}
                                     </div>
                                 </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
+                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 w-[20%]">
                                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleSort('matchedJob')}>
                                         Matched Job
                                         {getSortIcon('matchedJob')}
                                     </div>
                                 </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
+                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 w-[10%]">
                                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleSort('match')}>
                                         Match
                                         {getSortIcon('match')}
                                     </div>
                                 </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
+                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 w-[15%]">
                                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleSort('created')}>
                                         Created
                                         {getSortIcon('created')}
                                     </div>
                                 </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
+                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 w-[15%]">
                                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleSort('lastEdited')}>
                                         Last Edited
                                         {getSortIcon('lastEdited')}
                                     </div>
                                 </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
+                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 w-[5%]">
                                     Actions
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            {/* Example row - you can map through your data here */}
-                            <tr className="border-b border-gray-200 hover:bg-gray-50">
-                                <td className="px-4 py-3 text-sm text-gray-900">Software Engineer Resume</td>
-                                <td className="px-4 py-3 text-sm text-gray-900">85%</td>
-                                <td className="px-4 py-3 text-sm text-gray-900">Senior Frontend Developer</td>
-                                <td className="px-4 py-3 text-sm text-gray-900">92%</td>
-                                <td className="px-4 py-3 text-sm text-gray-900">2024-03-15</td>
-                                <td className="px-4 py-3 text-sm text-gray-900">2024-03-20</td>
-                                <td className="px-4 py-3 text-sm">
-                                    <div className="flex items-center gap-3">
-                                        <button className="text-gray-600 hover:text-blue-600">
-                                            <Edit className="w-4 h-4" />
-                                        </button>
-                                        <button className="text-gray-600 hover:text-green-600">
-                                            <Copy className="w-4 h-4" />
-                                        </button>
-                                        <button className="text-gray-600 hover:text-red-600">
-                                            <Trash className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
+                            {resumes.length === 0 ? (
+                                <tr className="border-b border-gray-200">
+                                    <td colSpan={7} className="py-12">
+                                        <div className="flex flex-col items-center justify-center">
+                                            <FileText className="w-12 h-12 text-gray-400 mb-4" />
+                                            <p className="text-gray-600 text-lg font-medium mb-2">No resumes found</p>
+                                            <p className="text-gray-500 text-sm">Create your first resume to get started</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                resumes.map((resume) => (
+                                    <tr key={resume.id} className="border-b border-gray-200 hover:bg-gray-50">
+                                        <td className="px-4 py-3 text-sm text-gray-900">{resume.name}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-900">{resume.score}%</td>
+                                        <td className="px-4 py-3 text-sm text-gray-900">{resume.matchedJob}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-900">{resume.match}%</td>
+                                        <td className="px-4 py-3 text-sm text-gray-900">{resume.created}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-900">{resume.lastEdited}</td>
+                                        <td className="px-4 py-3 text-sm">
+                                            <div className="flex items-center gap-3">
+                                                <button className="text-gray-600 hover:text-blue-600" onClick={() => navigate('/app/resume-builder/resume-editor')}>
+                                                    <Edit className="w-4 h-4" />
+                                                </button>
+                                                <button className="text-gray-600 hover:text-green-600">
+                                                    <Copy className="w-4 h-4" />
+                                                </button>
+                                                <button className="text-gray-600 hover:text-red-600">
+                                                    <Trash className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
             </div>
 
+            {/* import resume dialog */}
             <Dialog.Root open={isImportOpen} onOpenChange={setIsImportOpen}>
                 <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 bg-black/50" />
@@ -200,6 +283,13 @@ export const ResumeBuilder = () => {
 
                                 <Tabs.Content value="resume" className="outline-none">
                                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            onChange={handleFileUpload}
+                                            accept=".pdf,.doc,.docx"
+                                            className="hidden"
+                                        />
                                         <div className="mb-4">
                                             <Upload className="w-8 h-8 text-gray-400 mx-auto" />
                                         </div>
@@ -209,25 +299,25 @@ export const ResumeBuilder = () => {
                                         <p className="text-xs text-gray-500 mb-4">
                                             .doc, .docx or .pdf, up to 50 MB
                                         </p>
-                                        <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md text-sm hover:bg-gray-200">
-                                            Browse file
+                                        <button 
+                                            onClick={handleBrowseClick}
+                                            disabled={isLoading}
+                                            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md text-sm hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {isLoading ? 'Importing...' : 'Browse file'}
                                         </button>
                                     </div>
                                 </Tabs.Content>
 
                                 <Tabs.Content value="linkedin" className="outline-none">
                                     <div className="text-center py-8">
-                                        <p className="text-sm text-gray-600">
-                                            LinkedIn import content will go here
-                                        </p>
+                                        <input type="text" placeholder='Enter your LinkedIn profile URL' className='w-full p-2 border border-gray-300 rounded-md' />
                                     </div>
                                 </Tabs.Content>
 
                                 <Tabs.Content value="paste" className="outline-none">
-                                    <div className="text-center py-8">
-                                        <p className="text-sm text-gray-600">
-                                            Paste text content will go here
-                                        </p>
+                                    <div className="text-center">
+                                        <textarea placeholder='Paste your text here' className='w-full p-2 border border-gray-300 rounded-md h-[200px]' />
                                     </div>
                                 </Tabs.Content>
                             </Tabs.Root>
