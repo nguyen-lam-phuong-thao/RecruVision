@@ -1,8 +1,39 @@
-import { type JSX } from "react";
+import { type JSX, useState } from "react";
 import { Button } from "../../../../components/ui/button";
-import { Link } from "react-router-dom";
+import { toast, Toaster } from "react-hot-toast";
 
 export const CallToActionSection = (): JSX.Element => {
+  const [email, setEmail] = useState("");
+  const [isValid, setIsValid] = useState(true);
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    setIsValid(newEmail === "" || validateEmail(newEmail));
+  };
+
+  const handleSignUp = () => {
+    if (!email.trim()) {
+      toast.error("Please enter your email address");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      toast.error("Please enter a valid email address");
+      setIsValid(false);
+      return;
+    }
+
+    // Here you would typically send the email to your backend
+    toast.success("Thank you for subscribing! You'll receive our latest updates soon.");
+    setEmail("");
+  };
+
   const circleImages = [
     {
       src: "/images/png/element-1.png",
@@ -76,15 +107,20 @@ export const CallToActionSection = (): JSX.Element => {
     },
   ];
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
+  
 
   return (
     <section className="relative w-full h-[300px] bg-[#043873] overflow-hidden">
+      <Toaster 
+        position="top-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+        }}
+      />
       <div className="relative w-full max-w-[1200px] h-[180px] mx-auto py-16">
         <div className="relative w-full h-full">
           <div className="absolute w-[473px] h-[481px] top-[-137px] left-[-78px] rotate-[-105deg] opacity-20">
@@ -116,14 +152,36 @@ export const CallToActionSection = (): JSX.Element => {
               RecruVision
             </p>
 
-            <div className="mt-8">
-              <Link to="/signup">
-                <Button className="w-[160px] h-[50px] bg-white rounded-lg hover:bg-gray-100" onClick={() => {scrollToTop()}}>
-                  <span className="font-['Inter',Helvetica] font-normal text-blue-600 text-lg">
-                    Sign Up Now
+            
+
+            <div className="mt-8 flex gap-2">
+              <div className="relative">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={handleEmailChange}
+                  placeholder="Enter your email"
+                  className={`w-[300px] h-[50px] px-4 rounded-lg border-2 transition-all duration-200 
+                    ${isValid 
+                      ? 'border-white focus:border-blue-300 focus:ring-2 focus:ring-blue-300/20' 
+                      : 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                    } 
+                    bg-white text-black placeholder:text-black/70 outline-none`}
+                />
+                {!isValid && (
+                  <span className="absolute -bottom-6 left-0 text-sm text-red-400">
+                    Please enter a valid email address
                   </span>
-                </Button>
-              </Link>
+                )}
+              </div>
+              <Button 
+                onClick={handleSignUp}
+                className="w-[160px] h-[50px] bg-black rounded-lg hover:bg-black/50 transition-colors duration-200"
+              >
+                <span className="font-['Inter',Helvetica] font-normal text-white text-lg">
+                  Sign Up Now
+                </span>
+              </Button>
             </div>
           </div>
         </div>
