@@ -15,7 +15,7 @@ import Success from "../pages/Success/Success";
 import { JobTracker } from "../pages/Tracker/JobTracker";
 import { InterviewPractice } from "../pages/Interview/InterviewPractice";
 import { CareerPath } from "../pages/CareerPath/CareerPath";
-import { ProtectedRoute } from "../components/auth/ProtectedRoute";
+import { ProtectedRoute } from "./ProtectedRoute";
 import { ResumeEditor } from "../pages/ResumeEditor/ResumeEditor";
 
 // Define your routes here
@@ -57,13 +57,13 @@ export const routes: RouteObject[] = [
   {
     path: "/app",
     element: (
-     
-       <UserLayout />
-
+      <ProtectedRoute>
+        <UserLayout />
+      </ProtectedRoute>
     ),
     children: [
       {
-        index: true,
+        path: "/app/dashboard",
         element: <DashboardHome />,
       },
       {

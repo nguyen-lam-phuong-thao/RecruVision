@@ -1,6 +1,6 @@
 import { type JSX, useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import authService from "../../services/authService";
+import authService from "../services/authService";
 import { toast } from "react-hot-toast";
 
 interface ProtectedRouteProps {

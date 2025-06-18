@@ -5,7 +5,7 @@ export const UserLayout = (): JSX.Element => {
   return (
     <div className='flex min-h-screen h-full'>
       <div className="max-h-screen sticky top-0"><Sidebar/></div>
-      <div className="flex-1 p-6">
+      <div className="flex-1">
         <Outlet />
       </div>
     </div>

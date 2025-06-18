@@ -58,7 +58,7 @@ export const Sidebar = () => {
                     <SidebarItem
                         icon={<Home className="w-5 h-5" />}
                         text="Home"
-                        to="/app"
+                        to="/app/dashboard"
                         collapsed={collapsed}
                     />
                     <div className="border-b border-white mb-2"></div>

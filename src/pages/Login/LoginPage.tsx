@@ -46,13 +46,14 @@ export const LoginPage = (): JSX.Element => {
     }
 
     try {
-      const response = await login(email, password);
-      navigate('/app');
-      toast.success('Login successful');
-      console.log("Login successful");
+      await login(email, password);
       const cookie = await authService.getCookie();
       localStorage.setItem('cookie', cookie.cookieHeader);
       console.log("Cookie saved: ", cookie);
+      
+      toast.success('Login successful');
+      console.log("Login successful");
+      navigate('/app/dashboard');
     } catch (error) {
       console.error('Login failed:', error);
       if (error instanceof AxiosError) {
