@@ -9,7 +9,7 @@ export const GuestLayout = () => {
       <header>
         <Navigation />
       </header>
-      <main className="flex-grow">
+      <main className="flex-1">
         <Outlet />
       </main>
       <footer>

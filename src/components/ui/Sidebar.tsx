@@ -5,6 +5,8 @@ import {
     LifeBuoy,
     ArrowLeftToLine,
     FileUser,
+    ChevronsRight,
+    Route,
 } from "lucide-react";
 import { SidebarItem } from "./SidebarItem";
 import clsx from "clsx";
@@ -24,7 +26,7 @@ export const Sidebar = () => {
             )}
         >
             {/* Header */}
-            <div className="flex items-center justify-between p-2 border-b border-white">
+            <div className="flex items-center justify-between p-2">
                 <div className="flex items-center gap-1">
                     {collapsed ?
                         <img
@@ -51,31 +53,55 @@ export const Sidebar = () => {
             </div>
 
             {/* Menu */}
-            <nav className="mt-4 flex flex-col space-y-2">
-                <SidebarItem
-                    icon={<Home className="w-5 h-5" />}
-                    text="Home"
-                    to="/app"
-                    collapsed={collapsed}
-                />
-                <SidebarItem
-                    icon={<User className="w-5 h-5" />}
-                    text="Profile"
-                    to="/app/profile"
-                    collapsed={collapsed}
-                />
-                <SidebarItem
-                    icon={<LifeBuoy className="w-5 h-5" />}
-                    text="Support Center"
-                    to="/app/support-center"
-                    collapsed={collapsed}
-                />
-                <SidebarItem
-                    icon={<FileUser className="w-5 h-5" />}
-                    text="Resume Builder"
-                    to="/app/resume-builder"
-                    collapsed={collapsed}
-                />
+            <nav className="flex flex-col h-[calc(100%-80px)]">
+                <div className="flex flex-col space-y-2">
+                    <SidebarItem
+                        icon={<Home className="w-5 h-5" />}
+                        text="Home"
+                        to="/app/dashboard"
+                        collapsed={collapsed}
+                    />
+                    <div className="border-b border-white mb-2"></div>
+                    <SidebarItem
+                        icon={<FileUser className="w-5 h-5" />}
+                        text="Resume Builder"
+                        to="/app/resume-builder"
+                        collapsed={collapsed}
+                    />
+                    <SidebarItem
+                        icon={<ChevronsRight className="w-5 h-5" />}
+                        text="Job Tracker"
+                        to="/app/job-tracker"
+                        collapsed={collapsed}
+                    />
+                    <SidebarItem
+                        icon={<FileUser className="w-5 h-5" />}
+                        text="Interview Practice"
+                        to="/app/interview-practice"
+                        collapsed={collapsed}
+                    />
+                    <SidebarItem
+                        icon={<Route className="w-5 h-5"/>}
+                        text="Career Path"
+                        to="/app/career-path"
+                        collapsed={collapsed}
+                    />
+                </div>
+                <div className="flex-1"></div>
+                <div className="flex flex-col space-y-2">
+                    <SidebarItem
+                        icon={<LifeBuoy className="w-5 h-5" />}
+                        text="Support Center"
+                        to="/app/support-center"
+                        collapsed={collapsed}
+                    />
+                    <SidebarItem
+                        icon={<User className="w-5 h-5" />}
+                        text="Profile"
+                        to="/app/profile"
+                        collapsed={collapsed}
+                    />
+                </div>
             </nav>
         </div>
     );

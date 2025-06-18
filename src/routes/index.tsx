@@ -7,10 +7,17 @@ import { PricingPage } from "../pages/Pricing/PricingPage";
 import { Blog } from "../pages/Blog/Blog";
 import { Support } from "../pages/Support/Support";
 import { UserLayout } from "../layouts/User/UserLayout";
-import { AppHome } from "../pages/AppHome/AppHome";
+import { DashboardHome } from "../pages/DashboardHome/DashboardHome";
 import { ResumeBuilder } from "../pages/ResumeBuilder/ResumeBuilder";
 import { Profile } from "../pages/Profile/Profile";
 import { SupportCenter } from "../pages/SupportCenter/SupportCenter";
+import Success from "../pages/Success/Success";
+import { JobTracker } from "../pages/Tracker/JobTracker";
+import { InterviewPractice } from "../pages/Interview/InterviewPractice";
+import { CareerPath } from "../pages/CareerPath/CareerPath";
+import { ProtectedRoute } from "./ProtectedRoute";
+import { ResumeEditor } from "../pages/ResumeEditor/ResumeEditor";
+
 // Define your routes here
 export const routes: RouteObject[] = [
   {
@@ -41,19 +48,31 @@ export const routes: RouteObject[] = [
         path: "/support",
         element: <Support />,
       },
+      {
+        path: "/success",
+        element: <Success />,
+      },
     ],
   },
   {
     path: "/app",
-    element: <UserLayout />,
+    element: (
+      <ProtectedRoute>
+        <UserLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
-        index: true,
-        element: <AppHome />,
+        path: "/app/dashboard",
+        element: <DashboardHome />,
       },
       {
         path: "/app/resume-builder",
         element: <ResumeBuilder />,
+      },
+      {
+        path: "/app/resume-builder/resume-editor",
+        element: <ResumeEditor />,
       },
       {
         path: "/app/profile",
@@ -62,6 +81,18 @@ export const routes: RouteObject[] = [
       {
         path: "/app/support-center",
         element: <SupportCenter />,
+      },
+      {
+        path: "/app/job-tracker",
+        element: <JobTracker />,
+      },
+      {
+        path: "/app/interview-practice",
+        element: <InterviewPractice />,
+      },
+      {
+        path: "/app/career-path",
+        element: <CareerPath />,
       },
     ],
   },

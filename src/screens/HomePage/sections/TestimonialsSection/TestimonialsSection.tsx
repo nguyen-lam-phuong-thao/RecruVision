@@ -16,7 +16,7 @@ export const TestimonialsSection = (): JSX.Element => {
       id: 2,
       name: "Mark Thompson",
       role: "Marketing Analyst",
-      image: "/images/png/img-1.png",
+      image: "/images/png/profile-2.png",
       quote:
         '"The AI-powered scoring system is incredibly accurate. It\'s like having an expert recruiter working 24/7."',
     },
@@ -24,7 +24,7 @@ export const TestimonialsSection = (): JSX.Element => {
       id: 3,
       name: "Lisa Chen",
       role: "Back end developer",
-      image: "/images/png/img-2.png",
+      image: "/images/png/profile-3.png",
       quote:
         '"The CV optimization tool helped me understand exactly what recruiters were looking for. I received multiple interview calls within weeks."',
     },
