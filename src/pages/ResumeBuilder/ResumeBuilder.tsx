@@ -3,11 +3,13 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Tabs from '@radix-ui/react-tabs'
 import * as AlertDialog from '@radix-ui/react-alert-dialog'
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { toast, Toaster } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import Joyride from 'react-joyride'
 import type { CallBackProps, Step } from 'react-joyride'
+import { importCv } from '../../services/cvService'
+import { getProfile } from '../../services/authService'
 
 type SortDirection = 'asc' | 'desc' | null
 
@@ -33,9 +35,54 @@ export const ResumeBuilder = () => {
     const [resumes, setResumes] = useState<Resume[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [runTour, setRunTour] = useState(false)
+    const [userId, setUserId] = useState<number | null>(null)
+    const [isDragOver, setIsDragOver] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const navigate = useNavigate()
     
+    // Get user profile on component mount
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            try {
+                const profile = await getProfile()
+                setUserId(profile.data.userId)
+                return profile.data.userId
+            } catch (error) {
+                console.error('Error fetching user profile:', error)
+                toast.error('Failed to load user profile')
+                return null
+            }
+        }
+        
+        const loadCvList = async () => {
+            try {
+                // Load from localStorage since getCvList API doesn't exist yet
+                const savedResumes = localStorage.getItem('resumes')
+                if (savedResumes) {
+                    setResumes(JSON.parse(savedResumes))
+                }
+            } catch (error) {
+                console.error('Error loading CV list from localStorage:', error)
+            }
+        }
+        
+        const initializeData = async () => {
+            const userId = await fetchUserProfile()
+            if (userId) {
+                await loadCvList()
+            }
+        }
+        
+        initializeData()
+    }, [])
+
+    // Save resumes to localStorage whenever resumes change
+    useEffect(() => {
+        if (resumes.length > 0) {
+            localStorage.setItem('resumes', JSON.stringify(resumes))
+        }
+    }, [resumes])
+
     const steps: Step[] = [
         {
             target: '.search-resumes',
@@ -87,6 +134,12 @@ export const ResumeBuilder = () => {
         const file = event.target.files?.[0]
         if (!file) return
 
+        // Check if userId is available
+        if (!userId) {
+            toast.error('User profile not loaded. Please try again.')
+            return
+        }
+
         // Validate file type
         const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
         if (!validTypes.includes(file.type)) {
@@ -102,24 +155,32 @@ export const ResumeBuilder = () => {
 
         setIsLoading(true)
         try {
-            // Here you would typically send the file to your backend for processing
-            // For now, we'll simulate the response
+            // Call the importCv API
+            const response = await importCv(
+                userId,
+                file,
+                file.name.replace(/\.[^/.]+$/, ""), // Use filename without extension as title
+                true, // Create new version
+                undefined // No existing CV ID for new import
+            )
+
+            // Add the new resume to the list
             const newResume: Resume = {
-                id: Date.now().toString(),
-                name: file.name,
-                score: Math.floor(Math.random() * 30) + 70, // Random score between 70-100
-                matchedJob: 'Software Engineer', // This would come from backend analysis
-                match: Math.floor(Math.random() * 20) + 80, // Random match between 80-100
+                id: response.cvId.toString(),
+                name: response.metadata.originalFileName || file.name,
+                score: Math.floor(Math.random() * 30) + 70, // Fallback score
+                matchedJob: 'Software Engineer', // Fallback job
+                match: Math.floor(Math.random() * 20) + 80, // Fallback match
                 created: new Date().toISOString().split('T')[0],
                 lastEdited: new Date().toISOString().split('T')[0]
             }
 
             setResumes(prev => [...prev, newResume])
-            toast.success('Resume imported successfully')
+            toast.success(response.message || 'Resume imported successfully')
             setIsImportOpen(false)
         } catch (error) {
             console.error('Error importing resume:', error)
-            toast.error('Failed to import resume')
+            toast.error('Failed to import resume. Please try again.')
         } finally {
             setIsLoading(false)
             // Reset file input
@@ -131,6 +192,83 @@ export const ResumeBuilder = () => {
 
     const handleBrowseClick = () => {
         fileInputRef.current?.click()
+    }
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDragOver(true)
+    }
+
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDragOver(false)
+    }
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDragOver(false)
+
+        const files = e.dataTransfer.files
+        if (files.length > 0) {
+            const file = files[0]
+            handleFileFromDrop(file)
+        }
+    }
+
+    const handleFileFromDrop = async (file: File) => {
+        // Check if userId is available
+        if (!userId) {
+            toast.error('User profile not loaded. Please try again.')
+            return
+        }
+
+        // Validate file type
+        const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+        if (!validTypes.includes(file.type)) {
+            toast.error('Please upload a valid file (PDF, DOC, or DOCX)')
+            return
+        }
+
+        // Validate file size (50MB)
+        if (file.size > 50 * 1024 * 1024) {
+            toast.error('File size should be less than 50MB')
+            return
+        }
+
+        setIsLoading(true)
+        try {
+            // Call the importCv API
+            const response = await importCv(
+                userId,
+                file,
+                file.name.replace(/\.[^/.]+$/, ""), // Use filename without extension as title
+                true, // Create new version
+                undefined // No existing CV ID for new import
+            )
+
+            // Add the new resume to the list
+            const newResume: Resume = {
+                id: response.cvId.toString(),
+                name: response.metadata.originalFileName || file.name,
+                score: Math.floor(Math.random() * 30) + 70, // Fallback score
+                matchedJob: 'Software Engineer', // Fallback job
+                match: Math.floor(Math.random() * 20) + 80, // Fallback match
+                created: new Date().toISOString().split('T')[0],
+                lastEdited: new Date().toISOString().split('T')[0]
+            }
+
+            setResumes(prev => [...prev, newResume])
+            toast.success(response.message || 'Resume imported successfully')
+            setIsImportOpen(false)
+        } catch (error) {
+            console.error('Error importing resume:', error)
+            toast.error('Failed to import resume. Please try again.')
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     const handleDuplicateResume = (resume: Resume) => {
@@ -152,6 +290,7 @@ export const ResumeBuilder = () => {
 
     const handleDeleteAllResumes = () => {
         setResumes([])
+        localStorage.removeItem('resumes') // Clear localStorage
         setIsDeleteAllOpen(false)
         toast.success('All resumes deleted successfully')
     }
@@ -388,7 +527,16 @@ export const ResumeBuilder = () => {
                                 </Tabs.List>
 
                                 <Tabs.Content value="resume" className="outline-none">
-                                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                                    <div 
+                                        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                                            isDragOver 
+                                                ? 'border-blue-500 bg-blue-50' 
+                                                : 'border-gray-300'
+                                        }`}
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                    >
                                         <input
                                             type="file"
                                             ref={fileInputRef}
@@ -397,10 +545,17 @@ export const ResumeBuilder = () => {
                                             className="hidden"
                                         />
                                         <div className="mb-4">
-                                            <Upload className="w-8 h-8 text-gray-400 mx-auto" />
+                                            <Upload className={`w-8 h-8 mx-auto ${
+                                                isDragOver ? 'text-blue-500' : 'text-gray-400'
+                                            }`} />
                                         </div>
-                                        <p className="text-sm text-gray-600 mb-2">
-                                            Choose a file or drag and drop it here
+                                        <p className={`text-sm mb-2 ${
+                                            isDragOver ? 'text-blue-600' : 'text-gray-600'
+                                        }`}>
+                                            {isDragOver 
+                                                ? 'Drop your file here' 
+                                                : 'Choose a file or drag and drop it here'
+                                            }
                                         </p>
                                         <p className="text-xs text-gray-500 mb-4">
                                             .doc, .docx or .pdf, up to 50 MB

@@ -7,7 +7,8 @@ import {
     NavigationMenuList,
 } from "./navigation-menu";
 import { type JSX } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+
 export const Navigation = (): JSX.Element => {
     const navItems = [
         { label: "Home", href: "/" },
@@ -15,6 +16,7 @@ export const Navigation = (): JSX.Element => {
         { label: "Blog", href: "/blog" },
         { label: "Support", href: "/support" },
     ];
+    const location = useLocation();
     return (
         <div>
             {/* Navigation Bar */}
@@ -38,16 +40,26 @@ export const Navigation = (): JSX.Element => {
                         <div className="flex items-center ml-[200px]">
                             <NavigationMenu>
                                 <NavigationMenuList className="flex gap-8">
-                                    {navItems.map((item) => (
-                                        <NavigationMenuItem key={item.label}>
-                                            <NavigationMenuLink
-                                                href={item.href}
-                                                className="font-normal text-gray-700 text-base leading-5 font-sans"
-                                            >
-                                                {item.label}
-                                            </NavigationMenuLink>
-                                        </NavigationMenuItem>
-                                    ))}
+                                    {navItems.map((item) => {
+                                        let isActive = false;
+                                        if (item.href === '/') {
+                                            isActive = location.pathname === '/';
+                                        } else {
+                                            isActive = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
+                                        }
+                                        return (
+                                            <NavigationMenuItem key={item.label}>
+                                                <NavigationMenuLink asChild>
+                                                    <Link
+                                                        to={item.href}
+                                                        className={`font-normal text-base leading-5 font-sans text-gray-700 ${isActive ? 'font-bold' : ''}`}
+                                                    >
+                                                        {item.label}
+                                                    </Link>
+                                                </NavigationMenuLink>
+                                            </NavigationMenuItem>
+                                        );
+                                    })}
                                 </NavigationMenuList>
                             </NavigationMenu>
 
