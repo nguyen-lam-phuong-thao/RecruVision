@@ -37,7 +37,7 @@ export const getCvList = async (userId: number): Promise<CvListItem[]> => {
   const response = await api.get(`/api/Cv/list?userId=${userId}`);
   return response.data;
 };
-
+//Nhập cv
 export const importCv = async (
   userId: number,
   file: File,
@@ -69,7 +69,7 @@ export const importCv = async (
   
   return response.data;
 }; 
-
+//Xuất pdf
 export const exportView = async (
   cvId: number, 
   userId: number, 

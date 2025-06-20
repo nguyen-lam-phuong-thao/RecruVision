@@ -6,12 +6,23 @@ import * as Accordion from '@radix-ui/react-accordion'
 import { useState, useEffect } from 'react'
 import { exportView } from '../../services/cvService'
 import { getProfile } from '../../services/authService'
-import { Document, Page, pdfjs } from 'react-pdf'
+import { Document, Page} from 'react-pdf'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
 import 'react-pdf/dist/esm/Page/TextLayer.css'
+import { pdfjs } from 'react-pdf';
 
-// Set up PDF.js worker for react-pdf
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.mjs',
+  import.meta.url,
+).toString();
+
+function uint8ToBase64(uint8Array: Uint8Array) {
+  let binary = '';
+  for (let i = 0; i < uint8Array.length; i++) {
+    binary += String.fromCharCode(uint8Array[i]);
+  }
+  return window.btoa(binary);
+}
 
 export const ResumeEditor = () => {
   const navigate = useNavigate()
@@ -87,6 +98,12 @@ export const ResumeEditor = () => {
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages)
+  }
+
+  let encodedPdfData: string | null = null;
+  if (pdfData) {
+    const uint8 = new TextEncoder().encode(pdfData);
+    encodedPdfData = uint8ToBase64(uint8);
   }
 
   return (
@@ -320,7 +337,7 @@ export const ResumeEditor = () => {
                   ) : pdfData ? (
                     <div className="w-full h-full overflow-auto">
                       <Document
-                        file={`data:application/pdf;base64,${btoa(pdfData)}`}
+                        file={encodedPdfData ? `data:application/pdf;base64,${encodedPdfData}` : undefined}
                         onLoadSuccess={onDocumentLoadSuccess}
                         className="mx-auto"
                       >
