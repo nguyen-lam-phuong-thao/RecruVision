@@ -10,6 +10,7 @@ import Joyride from 'react-joyride'
 import type { CallBackProps, Step } from 'react-joyride'
 import { getCvList, importCv, type CvListItem } from '../../services/cvService'
 import { getProfile } from '../../services/authService'
+import { Tooltip } from 'antd'
 
 type SortDirection = 'asc' | 'desc' | null
 
@@ -306,7 +307,6 @@ export const ResumeBuilder = () => {
         }
         setResumes(prev => [...prev, newResume])
         toast.success('New resume created')
-        // Navigate to editor after creating
         
     }
 
@@ -332,18 +332,23 @@ export const ResumeBuilder = () => {
                     },
                 }}
             />
+            
             <div className='flex justify-between mb-6'>
                 <h1 className='text-2xl font-bold text-[#4F9CF9]'>Resume Builder</h1>
                 <div className='flex gap-2'>
-                    <div className='flex items-center gap-2 border border-gray-300 rounded-sm p-2 focus-within:border-blue-300 search-resumes'>
-                        <input type='text' placeholder='Search resumes' className='outline-none'/>
-                        <Search className='w-5 h-5 text-gray-500'/>
-                    </div>
+                    <Tooltip title="Search resumes by name or keywords" placement="bottom">
+                        <div className='flex items-center gap-2 border border-gray-300 rounded-sm p-2 focus-within:border-blue-300 search-resumes'>
+                            <input type='text' placeholder='Search resumes' className='outline-none'/>
+                            <Search className='w-5 h-5 text-gray-500'/>
+                        </div>
+                    </Tooltip>
                     <DropdownMenu.Root>
                         <DropdownMenu.Trigger asChild>
                             <div className='flex items-center gap-2 border border-gray-300 rounded-sm p-2 cursor-pointer hover:bg-gray-50 menu-button'>
                                 <Menu className='w-5 h-5 text-gray-500'/>
-                                <button>Menu</button>
+                                <Tooltip title="More Options" placement="bottom">
+                                    <button>Menu</button>
+                                </Tooltip>
                             </div>
                         </DropdownMenu.Trigger>
                         <DropdownMenu.Portal>
@@ -376,10 +381,12 @@ export const ResumeBuilder = () => {
                             </DropdownMenu.Content>
                         </DropdownMenu.Portal>
                     </DropdownMenu.Root>
-                    <div className='flex items-center gap-2 border border-gray-300 rounded-sm p-2 bg-[#4F9CF9] create-resume-button'>
-                        <Plus className='w-5 h-5 text-white'/>
-                        <button className='text-white' onClick={handleCreateNewResume}>Create New Resume</button>
-                    </div>
+                    <Tooltip title="Create New Resume" placement="bottom">
+                        <div className='flex items-center gap-2 border border-gray-300 rounded-sm p-2 bg-[#4F9CF9] create-resume-button'>
+                            <Plus className='w-5 h-5 text-white'/>
+                            <button className='text-white' onClick={handleCreateNewResume}>Create New Resume</button>
+                        </div>
+                    </Tooltip>
                 </div>
             </div>
 
@@ -452,21 +459,30 @@ export const ResumeBuilder = () => {
                                         <td className="px-4 py-3 text-sm text-gray-900">{resume.lastEdited}</td>
                                         <td className="px-4 py-3 text-sm">
                                             <div className="flex items-center gap-3 resume-actions">
-                                                <button className="text-gray-600 hover:text-blue-600" onClick={() => navigate('/app/resume-builder/resume-editor')}>
-                                                    <Edit className="w-4 h-4" />
-                                                </button>
-                                                <button 
-                                                    className="text-gray-600 hover:text-green-600"
-                                                    onClick={() => handleDuplicateResume(resume)}
-                                                >
-                                                    <Copy className="w-4 h-4" />
-                                                </button>
-                                                <button 
-                                                    className="text-gray-600 hover:text-red-600"
-                                                    onClick={() => handleDeleteResume(resume.id)}
-                                                >
-                                                    <Trash className="w-4 h-4" />
-                                                </button>
+                                                <Tooltip title="Edit Resume" placement="top">
+                                                    <button 
+                                                        className="btn-edit text-gray-600 hover:text-blue-600" 
+                                                        onClick={() => navigate(`/app/resume-builder/resume-editor?cvId=${resume.id}`)}
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                    </button>
+                                                </Tooltip>
+                                                <Tooltip title="Duplicate Resume" placement="top">
+                                                    <button 
+                                                        className="btn-duplicate text-gray-600 hover:text-green-600"
+                                                        onClick={() => handleDuplicateResume(resume)}
+                                                    >
+                                                        <Copy className="w-4 h-4" />
+                                                    </button>
+                                                </Tooltip>
+                                                <Tooltip title="Delete Resume" placement="top">
+                                                    <button 
+                                                        className="btn-delete text-gray-600 hover:text-red-600"
+                                                        onClick={() => handleDeleteResume(resume.id)}
+                                                    >
+                                                        <Trash className="w-4 h-4" />
+                                                    </button>
+                                                </Tooltip>
                                             </div>
                                         </td>
                                     </tr>
