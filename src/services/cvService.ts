@@ -34,9 +34,20 @@ interface ExportViewRequest {
 }
 // hàm này chưa có api thật
 export const getCvList = async (userId: number): Promise<CvListItem[]> => {
-  const response = await api.get(`/api/Cv/list?userId=${userId}`);
-  return response.data;
+  const response = await api.get(`/api/Cv/user/${userId}`);
+  const cvs = response.data?.cvs || [];
+
+  return cvs.map((cv: any) => ({
+    id: cv.cvId.toString(),
+    title: cv.title,
+    created: cv.createdAt,
+    lastEdited: cv.updatedAt,
+    score: undefined,         // nếu cần bạn có thể tính toán hoặc bỏ
+    matchedJob: undefined,    // nếu có thông tin job matching, bạn có thể đưa vào
+    match: undefined
+  }));
 };
+
 //Nhập cv
 export const importCv = async (
   userId: number,
@@ -75,14 +86,17 @@ export const exportView = async (
   userId: number, 
   exportFormat: string, 
   includeAnalysis: boolean
-): Promise<string> => {
+): Promise<Blob> => {
   const requestBody: ExportViewRequest = {
     cvId,
     userId,
     exportFormat,
     includeAnalysis
   };
-  
-  const response = await api.post('/api/Cv/export-view', requestBody);
-  return response.data;
+
+  const response = await api.post('/api/Cv/export-view', requestBody, {
+    responseType: 'blob' 
+  });
+
+  return response.data; // Đây là Blob (PDF binary)
 };

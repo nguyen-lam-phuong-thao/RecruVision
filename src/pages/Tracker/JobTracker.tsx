@@ -2,93 +2,7 @@ import type { JSX } from "react"
 import { useState } from "react"
 import { Menu, Info, Archive, FileBarChart2, Download } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-
-const jobs = [
-  {
-    position: "Front End Intern",
-    company: "ATOM SOLUTIONS JOINT STOCK ...",
-    minSalary: "150,00 US$",
-    maxSalary: "200,00 US$",
-    location: "Ho Chi Minh: 90M-92M ...",
-    status: "Interviewing",
-    datePosted: "06/04/2025",
-    dateSaved: "03/20/2025",
-    deadline: "03/20/2025",
-    dateApplied: "03/20/2025",
-    followUp: "Add date",
-    excitement: 4,
-  },
-  {
-    position: "Front-End Developer Intern",
-    company: "GoGoX Vietnam Joint Stock Company",
-    minSalary: "50,00 US$",
-    maxSalary: "117,00 US$",
-    location: "Ho Chi Minh: Blue Sky Offic...",
-    status: "Negotiating",
-    datePosted: "06/04/2025",
-    dateSaved: "03/20/2025",
-    deadline: "03/20/2025",
-    dateApplied: "03/20/2025",
-    followUp: "03/19/2025",
-    excitement: 5,
-  },
-  {
-    position: "Senior Front End Developer",
-    company: "Outpost24",
-    minSalary: "29.000,00 ₫",
-    maxSalary: "39.000,00 ₫",
-    location: "18th Floor, Peakview ...",
-    datePosted: "06/04/2025",
-    status: "Bookmarked",
-    dateSaved: "03/20/2025",
-    deadline: "N/A",
-    dateApplied: "N/A",
-    followUp: "Add date",
-    excitement: 0,
-  },
-  {
-    position: "Product Designer - Sample Job",
-    company: "Acme Corp",
-    minSalary: "200,00 US$",
-    maxSalary: "315,00 US$",
-    location: "Anywhere, USA",
-    status: "Applying",
-    datePosted: "06/04/2025",
-    dateSaved: "03/18/2025",
-    deadline: "N/A",
-    dateApplied: "03/18/2025",
-    followUp: "06/08/2025",
-    excitement: 2,
-  },
-  {
-    position: "Operations Manager - Sample Job",
-    company: "Acme Corp",
-    minSalary: "170,00 US$",
-    maxSalary: "259,00 US$",
-    location: "remote",
-    status: "Applied",
-    datePosted: "06/04/2025",
-    dateSaved: "03/18/2025",
-    deadline: "03/20/2025",
-    dateApplied: "03/18/2025",
-    followUp: "03/21/2025",
-    excitement: 4,
-  },
-  {
-    position: "Marketing Manager - Sample Job",
-    company: "Acme Corp",
-    minSalary: "250,00 US$",
-    maxSalary: "344,00 US$",
-    location: "Anywhere, USA",
-    status: "Accepted",
-    datePosted: "06/04/2025",
-    dateSaved: "03/18/2025",
-    deadline: "03/20/2025",
-    dateApplied: "03/18/2025",
-    followUp: "03/21/2025",
-    excitement: 3,
-  },
-];
+import { useJobsContext } from "../../contexts/JobsContext"
 
 const steps = [
   { label: "BOOKMARKED" },
@@ -213,18 +127,36 @@ const columnOptions = [
 ];
 
 export const JobTracker = (): JSX.Element => {
+  const navigate = useNavigate()
+  const { jobs, updateJobStatus, deleteJob, addJob } = useJobsContext()
   const [selectedJobs, setSelectedJobs] = useState<number[]>([])
-  const [ratings, setRatings] = useState(jobs.map(j => j.excitement || 0))
-  const [hovered, setHovered] = useState<{row: number, star: number} | null>(null)
-  const [jobList, setJobList] = useState(jobs.map(j => ({...j, archived: false})))
   const [showStatusDropdown, setShowStatusDropdown] = useState(false)
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [showColumnsDropdown, setShowColumnsDropdown] = useState(false)
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(["maxSalary", "location", "status", "dateSaved", "deadline", "dateApplied", "followUp", "excitement"])
   const [showMenuDropdown, setShowMenuDropdown] = useState(false)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [showTour, setShowTour] = useState(false)
   const [tourStep, setTourStep] = useState(0)
-  const navigate = useNavigate()
+  const [ratings, setRatings] = useState<number[]>(jobs.map(() => 0))
+  const [hovered, setHovered] = useState<{row: number, star: number} | null>(null)
+  const [visibleColumns, setVisibleColumns] = useState<string[]>([
+    'minSalary', 'maxSalary', 'location', 'status', 'datePosted', 'dateSaved', 'deadline', 'dateApplied', 'followUp', 'excitement'
+  ])
+  const [showAddJobModal, setShowAddJobModal] = useState(false)
+  const [newJob, setNewJob] = useState({
+    position: '',
+    company: '',
+    minSalary: '',
+    maxSalary: '',
+    location: '',
+    status: 'Bookmarked',
+    datePosted: '',
+    dateSaved: '',
+    deadline: '',
+    dateApplied: '',
+    followUp: '',
+    excitement: 0,
+  })
+
   const [activityLog, setActivityLog] = useState<string[]>([])
 
   // Helper để ghi log
@@ -236,12 +168,11 @@ export const JobTracker = (): JSX.Element => {
   }
 
   const handleSelectAll = () => {
-    const visibleJobs = jobList.filter(j => !j.archived)
-    if (selectedJobs.length === visibleJobs.length) {
+    if (selectedJobs.length === jobs.length) {
       setSelectedJobs([])
       logActivity('Deselect all jobs')
     } else {
-      setSelectedJobs(visibleJobs.map((_, idx) => idx))
+      setSelectedJobs(jobs.map((_, idx) => idx))
       logActivity('Select all jobs')
     }
   }
@@ -249,34 +180,36 @@ export const JobTracker = (): JSX.Element => {
   const handleSelectJob = (idx: number) => {
     setSelectedJobs((prev) => {
       if (prev.includes(idx)) {
-        logActivity(`Deselect job: ${visibleJobs[idx].position}`)
+        logActivity(`Deselect job: ${jobs[idx].position}`)
         return prev.filter((i) => i !== idx)
       } else {
-        logActivity(`Select job: ${visibleJobs[idx].position}`)
+        logActivity(`Select job: ${jobs[idx].position}`)
         return [...prev, idx]
       }
     })
   }
 
   const handleStatusChange = (status: string) => {
-    setJobList(list => list.map((job, idx) =>
-      !job.archived && selectedJobs.includes(idx) ? { ...job, status } : job
-    ))
-    logActivity(`Change status to '${status}' for jobs: ${selectedJobs.map(i => visibleJobs[i].position).join(', ')}`)
-    setShowStatusDropdown(false)
+    selectedJobs.forEach(idx => {
+      updateJobStatus(idx, status)
+    })
+    setSelectedJobs([])
+    logActivity(`Changed status of ${selectedJobs.length} job(s) to ${status}`)
   }
 
   const handleArchive = () => {
-    setJobList(list => list.map((job, idx) =>
-      selectedJobs.includes(idx) ? { ...job, archived: true } : job
-    ))
-    logActivity(`Archive jobs: ${selectedJobs.map(i => visibleJobs[i].position).join(', ')}`)
+    selectedJobs.forEach(idx => {
+      updateJobStatus(idx, 'Archived')
+    })
     setSelectedJobs([])
+    logActivity(`Archived ${selectedJobs.length} job(s)`)
   }
 
   const handleDelete = () => {
-    logActivity(`Delete jobs: ${selectedJobs.map(i => visibleJobs[i].position).join(', ')}`)
-    setJobList(list => list.filter((_, idx) => !selectedJobs.includes(idx)))
+    logActivity(`Delete jobs: ${selectedJobs.map(i => jobs[i].position).join(', ')}`)
+    selectedJobs.forEach(idx => {
+      deleteJob(idx)
+    })
     setSelectedJobs([])
     setShowConfirmDialog(false)
   }
@@ -287,7 +220,7 @@ export const JobTracker = (): JSX.Element => {
     )
   }
 
-  const visibleJobs = jobList.filter(j => !j.archived)
+  const visibleJobs = jobs.filter(job => job.status !== 'Archived')
 
   // Tính số lượng job cho mỗi status
   const getStatusCount = (status: string) => {
@@ -322,17 +255,47 @@ export const JobTracker = (): JSX.Element => {
   }
 
   const handleDownloadData = () => {
-    const headers = ["Job Position", "Company"]
-    columnOptions.forEach(opt => { if (visibleColumns.includes(opt.key)) headers.push(opt.label) })
-    const rows = [headers]
-    visibleJobs.forEach(job => {
-      const row = [job.position, job.company]
-      columnOptions.forEach(opt => {
-        if (visibleColumns.includes(opt.key)) row.push(String(job[opt.key as keyof typeof job] ?? ""))
+    const headers = ['Position', 'Company', 'Min Salary', 'Max Salary', 'Location', 'Status', 'Date Posted', 'Date Saved', 'Deadline', 'Date Applied', 'Follow Up', 'Excitement']
+    const rows = jobs.map(job => [
+      job.position, job.company, job.minSalary, job.maxSalary, job.location, job.status, job.datePosted, job.dateSaved, job.deadline, job.dateApplied, job.followUp, job.excitement.toString()
+    ])
+    downloadCSV('job-tracker-data.csv', [headers, ...rows])
+    logActivity('Downloaded job tracker data as CSV')
+  }
+
+  const handleAddJob = () => {
+    if (newJob.position && newJob.company) {
+      const jobToAdd = {
+        ...newJob,
+        dateSaved: newJob.dateSaved || new Date().toLocaleDateString('en-US'),
+        excitement: newJob.excitement || 0
+      }
+      addJob(jobToAdd)
+      setNewJob({
+        position: '',
+        company: '',
+        minSalary: '',
+        maxSalary: '',
+        location: '',
+        status: 'Bookmarked',
+        datePosted: '',
+        dateSaved: '',
+        deadline: '',
+        dateApplied: '',
+        followUp: '',
+        excitement: 0,
       })
-      rows.push(row)
-    })
-    downloadCSV('job_data.csv', rows)
+      setShowAddJobModal(false)
+      logActivity(`Added new job: ${jobToAdd.position} at ${jobToAdd.company}`)
+    }
+  }
+
+  const handleInputChange = (field: string, value: string | number) => {
+    setNewJob(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleExcitementChange = (value: number) => {
+    setNewJob(prev => ({ ...prev, excitement: value }))
   }
 
   return (
@@ -483,7 +446,10 @@ export const JobTracker = (): JSX.Element => {
             </div>
           )}
         </button>
-        <button style={{ background: '#043873', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <button 
+          style={{ background: '#043873', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}
+          onClick={() => setShowAddJobModal(true)}
+        >
           <span style={{ fontSize: 18, fontWeight: 700 }}>+</span> Add a New Job
         </button>
       </div>
@@ -546,6 +512,263 @@ export const JobTracker = (): JSX.Element => {
           </tbody>
         </table>
       </div>
+      {/* Add Job Modal */}
+      {showAddJobModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.18)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <div style={{ 
+            background: '#fff', 
+            borderRadius: 10, 
+            padding: 32, 
+            minWidth: 500, 
+            maxWidth: 600,
+            maxHeight: '90vh',
+            overflow: 'auto',
+            boxShadow: '0 2px 16px rgba(4,56,115,0.12)' 
+          }}>
+            <div style={{ fontWeight: 700, fontSize: 20, color: '#043873', marginBottom: 24 }}>Add a New Job</div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#043873', fontWeight: 600 }}>Job Position *</label>
+                <input
+                  type="text"
+                  value={newJob.position}
+                  onChange={(e) => handleInputChange('position', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: 6,
+                    fontSize: 14
+                  }}
+                  placeholder="e.g. Front End Developer"
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#043873', fontWeight: 600 }}>Company *</label>
+                <input
+                  type="text"
+                  value={newJob.company}
+                  onChange={(e) => handleInputChange('company', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: 6,
+                    fontSize: 14
+                  }}
+                  placeholder="e.g. Tech Company Inc."
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#043873', fontWeight: 600 }}>Min Salary</label>
+                <input
+                  type="text"
+                  value={newJob.minSalary}
+                  onChange={(e) => handleInputChange('minSalary', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: 6,
+                    fontSize: 14
+                  }}
+                  placeholder="e.g. 50,000 US$"
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#043873', fontWeight: 600 }}>Max Salary</label>
+                <input
+                  type="text"
+                  value={newJob.maxSalary}
+                  onChange={(e) => handleInputChange('maxSalary', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: 6,
+                    fontSize: 14
+                  }}
+                  placeholder="e.g. 80,000 US$"
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#043873', fontWeight: 600 }}>Location</label>
+                <input
+                  type="text"
+                  value={newJob.location}
+                  onChange={(e) => handleInputChange('location', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: 6,
+                    fontSize: 14
+                  }}
+                  placeholder="e.g. Ho Chi Minh City"
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#043873', fontWeight: 600 }}>Status</label>
+                <select
+                  value={newJob.status}
+                  onChange={(e) => handleInputChange('status', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: 6,
+                    fontSize: 14
+                  }}
+                >
+                  {statusOptions.map(option => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#043873', fontWeight: 600 }}>Date Posted</label>
+                <input
+                  type="date"
+                  value={newJob.datePosted}
+                  onChange={(e) => handleInputChange('datePosted', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: 6,
+                    fontSize: 14
+                  }}
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#043873', fontWeight: 600 }}>Date Saved</label>
+                <input
+                  type="date"
+                  value={newJob.dateSaved}
+                  onChange={(e) => handleInputChange('dateSaved', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: 6,
+                    fontSize: 14
+                  }}
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#043873', fontWeight: 600 }}>Deadline</label>
+                <input
+                  type="date"
+                  value={newJob.deadline}
+                  onChange={(e) => handleInputChange('deadline', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: 6,
+                    fontSize: 14
+                  }}
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#043873', fontWeight: 600 }}>Date Applied</label>
+                <input
+                  type="date"
+                  value={newJob.dateApplied}
+                  onChange={(e) => handleInputChange('dateApplied', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: 6,
+                    fontSize: 14
+                  }}
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#043873', fontWeight: 600 }}>Follow Up</label>
+                <input
+                  type="date"
+                  value={newJob.followUp}
+                  onChange={(e) => handleInputChange('followUp', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: 6,
+                    fontSize: 14
+                  }}
+                />
+              </div>
+            </div>
+            
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: 'block', marginBottom: 8, color: '#043873', fontWeight: 600 }}>Excitement Level</label>
+              <div style={{ display: 'flex', gap: 4 }}>
+                {[1,2,3,4,5].map(i => (
+                  <Star
+                    key={i}
+                    filled={i <= newJob.excitement}
+                    onClick={() => handleExcitementChange(i)}
+                    highlight={false}
+                  />
+                ))}
+              </div>
+            </div>
+            
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button 
+                onClick={() => setShowAddJobModal(false)} 
+                style={{ 
+                  padding: '8px 18px', 
+                  borderRadius: 6, 
+                  border: '1px solid #d1d5db', 
+                  background: '#fff', 
+                  color: '#043873', 
+                  fontWeight: 500 
+                }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleAddJob} 
+                style={{ 
+                  padding: '8px 18px', 
+                  borderRadius: 6, 
+                  border: 'none', 
+                  background: '#043873', 
+                  color: '#fff', 
+                  fontWeight: 700 
+                }}
+              >
+                Add Job
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Confirm Delete Dialog */}
       {showConfirmDialog && (
         <div style={{

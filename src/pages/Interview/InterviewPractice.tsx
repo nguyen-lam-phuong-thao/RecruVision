@@ -1,4 +1,6 @@
 import type { JSX } from "react"
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 const recentScenarios = [
   {
@@ -27,6 +29,7 @@ const scenarioLibrary = [
     ),
     title: "Tell Me About Yourself",
     desc: "Master the art of introduction by practicing a compelling and authentic response",
+    duration: "10 minutes"
   },
   {
     icon: (
@@ -34,6 +37,7 @@ const scenarioLibrary = [
     ),
     title: "Why Do You Want to Work Here?",
     desc: "Craft a tailored narrative that describes your aspiration to work with a company",
+    duration: "15 minutes"
   },
   {
     icon: (
@@ -41,6 +45,7 @@ const scenarioLibrary = [
     ),
     title: "Career Gaps with Confidence",
     desc: "Learn how to address gaps in work history with honesty and confidence.",
+    duration: "12 minutes"
   },
   {
     icon: (
@@ -48,6 +53,7 @@ const scenarioLibrary = [
     ),
     title: "Discussing Salary Expectations",
     desc: "Craft a confident, well-supported response and practice discussing compensation.",
+    duration: "15 minutes"
   },
   {
     icon: (
@@ -55,6 +61,7 @@ const scenarioLibrary = [
     ),
     title: "What Are Your Weaknesses?",
     desc: "Discover the right way to answer this tough question with an honest and strategic response.",
+    duration: "10 minutes"
   },
   {
     icon: (
@@ -62,6 +69,7 @@ const scenarioLibrary = [
     ),
     title: "Job-Specific Interview",
     desc: "Practice answering questions relevant to your field while building confidence in articulating their qualifications.",
+    duration: "20 minutes"
   },
   {
     icon: (
@@ -69,6 +77,7 @@ const scenarioLibrary = [
     ),
     title: "What Accomplishment Are You Most Proud Of?",
     desc: "Focus on highlighting impact, problem-solving, and personal growth related to the role",
+    duration: "12 minutes"
   },
   {
     icon: (
@@ -76,28 +85,67 @@ const scenarioLibrary = [
     ),
     title: "How Do You Handle Conflict?",
     desc: "Practice structuring a response that highlights communication, problem-solving, and emotional intelligence.",
+    duration: "15 minutes"
   },
 ];
 
 export const InterviewPractice = (): JSX.Element => {
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
+  const [showWelcome, setShowWelcome] = useState(true)
+  const navigate = useNavigate()
+
+  const handleStartInterview = (scenarioTitle: string) => {
+    navigate('/app/interview-practice/interview-module', { 
+      state: { 
+        scenarioTitle,
+        from: 'interview-practice'
+      }
+    })
+  }
+
+  const handleCloseWelcome = () => {
+    setShowWelcome(false)
+  }
+
   return (
     <div style={{ background: '#F5F8FA', minHeight: '100vh', padding: 0 }}>
+      <style>
+        {`
+          @keyframes slideUp {
+            from {
+              transform: translateY(100%);
+              opacity: 0;
+            }
+            to {
+              transform: translateY(0);
+              opacity: 1;
+            }
+          }
+        `}
+      </style>
       {/* Header */}
       <div style={{ padding: '24px 0 0 24px', fontWeight: 700, fontSize: 22, color: '#043873' }}>
         Interview Practice Hub
       </div>
       {/* Welcome Alert */}
-      <div style={{ margin: '24px 24px 0 24px', background: '#E6F2FA', borderRadius: 12, padding: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ fontWeight: 700, fontSize: 18, color: '#043873', marginBottom: 6 }}>
-            Welcome to the Interview Practice Hub! <span role="img" aria-label="wave">👋</span>
+      {showWelcome && (
+        <div style={{ margin: '24px 24px 0 24px', background: '#E6F2FA', borderRadius: 12, padding: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 18, color: '#043873', marginBottom: 6 }}>
+              Welcome to the Interview Practice Hub! <span role="img" aria-label="wave">👋</span>
+            </div>
+            <div style={{ color: '#043873', fontSize: 16, maxWidth: 700 }}>
+              Get started with your all-in-one space to prepare for the next step in your career. Practice scenarios, build confidence, and explore new scenarios to grow your professional career.
+            </div>
           </div>
-          <div style={{ color: '#043873', fontSize: 16, maxWidth: 700 }}>
-            Get started with your all-in-one space to prepare for the next step in your career. Practice scenarios, build confidence, and explore new scenarios to grow your professional career.
-          </div>
+          <button 
+            onClick={handleCloseWelcome}
+            style={{ background: 'none', border: 'none', fontSize: 22, color: '#043873', cursor: 'pointer' }}
+          >
+            &times;
+          </button>
         </div>
-        <button style={{ background: 'none', border: 'none', fontSize: 22, color: '#043873', cursor: 'pointer' }}>&times;</button>
-      </div>
+      )}
       {/* Main Content */}
       <div style={{ display: 'flex', gap: 32, margin: '32px 24px 0 24px' }}>
         {/* Left: Recent Scenarios & Library */}
@@ -126,10 +174,84 @@ export const InterviewPractice = (): JSX.Element => {
           <div style={{ fontWeight: 700, fontSize: 20, color: '#043873', marginBottom: 18 }}>Scenario Library</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 18 }}>
             {scenarioLibrary.map((s, i) => (
-              <div key={i} style={{ background: '#fff', borderRadius: 12, border: '1px solid #e5e7eb', padding: 22, minHeight: 140, display: 'flex', flexDirection: 'column', gap: 10, boxShadow: '0 1px 2px rgba(4, 56, 115, 0.03)' }}>
+              <div 
+                key={i} 
+                style={{ 
+                  background: '#fff', 
+                  borderRadius: 12, 
+                  border: '1px solid #e5e7eb', 
+                  padding: 22, 
+                  minHeight: 140, 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: 10, 
+                  boxShadow: '0 1px 2px rgba(4, 56, 115, 0.03)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease-in-out',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}
+                onMouseEnter={() => setHoveredCard(i)}
+                onMouseLeave={() => setHoveredCard(null)}
+              >
                 <div>{s.icon}</div>
                 <div style={{ fontWeight: 700, fontSize: 16, color: '#043873', marginBottom: 2 }}>{s.title}</div>
                 <div style={{ color: '#6b7280', fontSize: 15 }}>{s.desc}</div>
+                
+                {/* Hover overlay */}
+                {hoveredCard === i && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    background: 'linear-gradient(transparent, rgba(255,255,255,0.9) 20%, #fff)',
+                    padding: '20px 22px 22px 22px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8,
+                    animation: 'slideUp 0.2s ease-out'
+                  }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 6, 
+                      color: '#6b7280', 
+                      fontSize: 14,
+                      fontWeight: 500
+                    }}>
+                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="8" cy="8" r="6" />
+                        <path d="M8 4v4l2 2" />
+                      </svg>
+                      {s.duration}
+                    </div>
+                    <button style={{
+                      background: '#4F9CF9',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 6,
+                      padding: '8px 16px',
+                      fontWeight: 600,
+                      fontSize: 14,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      alignSelf: 'flex-start',
+                      transition: 'background-color 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#3B82F6'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = '#4F9CF9'}
+                    onClick={() => handleStartInterview(s.title)}
+                    >
+                      <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                        <polygon points="5,3 19,12 5,21" />
+                      </svg>
+                      Start
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
             {/* Submit Ideas Card */}

@@ -18,6 +18,7 @@ import { CareerPath } from "../pages/CareerPath/CareerPath";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { ResumeEditor } from "../pages/ResumeEditor/ResumeEditor";
 import { BlogDetail } from "../pages/BlogDetail/BlogDetail";
+import InterviewModule from "../pages/Interview/InterviewModule";
 
 // Define your routes here
 export const routes: RouteObject[] = [
@@ -94,6 +95,10 @@ export const routes: RouteObject[] = [
       {
         path: "/app/interview-practice",
         element: <InterviewPractice />,
+      },
+      {
+        path: "/app/interview-practice/interview-module",
+        element: <InterviewModule />,
       },
       {
         path: "/app/career-path",

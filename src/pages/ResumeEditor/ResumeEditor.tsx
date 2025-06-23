@@ -6,7 +6,7 @@ import * as Accordion from '@radix-ui/react-accordion'
 import { useState, useEffect } from 'react'
 import { exportView } from '../../services/cvService'
 import { getProfile } from '../../services/authService'
-import { Document, Page} from 'react-pdf'
+import { Document, Page } from 'react-pdf'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
 import 'react-pdf/dist/esm/Page/TextLayer.css'
 import { pdfjs } from 'react-pdf';
@@ -16,13 +16,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
-function uint8ToBase64(uint8Array: Uint8Array) {
-  let binary = '';
-  for (let i = 0; i < uint8Array.length; i++) {
-    binary += String.fromCharCode(uint8Array[i]);
-  }
-  return window.btoa(binary);
-}
+
 
 export const ResumeEditor = () => {
   const navigate = useNavigate()
@@ -33,11 +27,10 @@ export const ResumeEditor = () => {
   const [pdfData, setPdfData] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [numPages, setNumPages] = useState<number>(0)
-  const [pageNumber, setPageNumber] = useState<number>(1)
 
   const handleAccordionChange = (value: string) => {
-    setOpenItems(prev => 
-      prev.includes(value) 
+    setOpenItems(prev =>
+      prev.includes(value)
         ? prev.filter(item => item !== value)
         : [...prev, value]
     )
@@ -65,8 +58,9 @@ export const ResumeEditor = () => {
             // Call exportView API to get PDF data
             setIsLoading(true)
             try {
-              const pdfString = await exportView(latestCvId, currentUserId, 'PDF', true)
-              setPdfData(pdfString)
+              const pdfBlob = await exportView(latestCvId, currentUserId, 'PDF', true)
+              const pdfUrl = URL.createObjectURL(pdfBlob)
+              setPdfData(pdfUrl)
             } catch (error) {
               console.error('Error loading PDF:', error)
             } finally {
@@ -86,8 +80,9 @@ export const ResumeEditor = () => {
     if (userId && cvId) {
       setIsLoading(true)
       try {
-        const pdfString = await exportView(cvId, userId, 'PDF', true)
-        setPdfData(pdfString)
+        const pdfBlob = await exportView(cvId, userId, 'PDF', true)
+        const pdfUrl = URL.createObjectURL(pdfBlob)
+        setPdfData(pdfUrl)
       } catch (error) {
         console.error('Error refreshing PDF:', error)
       } finally {
@@ -100,11 +95,7 @@ export const ResumeEditor = () => {
     setNumPages(numPages)
   }
 
-  let encodedPdfData: string | null = null;
-  if (pdfData) {
-    const uint8 = new TextEncoder().encode(pdfData);
-    encodedPdfData = uint8ToBase64(uint8);
-  }
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -194,10 +185,10 @@ export const ResumeEditor = () => {
         </div>
 
         {/* Main content */}
-        <main className="mx-auto px-4 py-6">
-          <div className="grid grid-cols-5 gap-6">
+        <main className="mx-auto ">
+          <div className="grid-container grid grid-cols-6  h-[calc(100vh-120px)]">
             {/* Left section - 3 columns */}
-            <div className="col-span-3 bg-white rounded-lg border border-gray-200 p-6">
+            <div className="col-span-3 bg-white border border-gray-200 p-6 overflow-auto">
               <div className="h-full">
                 {/* Content Editor Tab */}
                 <TabsContent value="content" className="h-full mt-0 outline-none">
@@ -212,7 +203,7 @@ export const ResumeEditor = () => {
                             className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${openItems.includes('contact') ? 'rotate-90' : ''
                               }`}
                           />
-                          <span className="font-medium">Contact Info</span>
+                          <span className="font-medium">Contact Information</span>
                         </div>
                       </Accordion.Trigger>
                       <Accordion.Content className="px-4 pb-4">
@@ -291,6 +282,115 @@ export const ResumeEditor = () => {
                         <p>Education content</p>
                       </Accordion.Content>
                     </Accordion.Item>
+
+                    <Accordion.Item value="skills" className="border border-gray-200 rounded-lg">
+                      <Accordion.Trigger
+                        className="flex items-center justify-between w-full px-4 py-3 hover:bg-gray-50 transition-colors"
+                        onClick={() => handleAccordionChange('skills')}
+                      >
+                        <div className="flex items-center gap-3">
+                          <ChevronRight
+                            className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${openItems.includes('skills') ? 'rotate-90' : ''
+                              }`}
+                          />
+                          <span className="font-medium">Skills & Interests</span>
+                        </div>
+                      </Accordion.Trigger>
+                      <Accordion.Content className="px-4 pb-4">
+                        <p>Skills & Interests content</p>
+                      </Accordion.Content>
+                    </Accordion.Item>
+
+                    <Accordion.Item value="certifications" className="border border-gray-200 rounded-lg">
+                      <Accordion.Trigger
+                        className="flex items-center justify-between w-full px-4 py-3 hover:bg-gray-50 transition-colors"
+                        onClick={() => handleAccordionChange('certifications')}
+                      >
+                        <div className="flex items-center gap-3">
+                          <ChevronRight
+                            className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${openItems.includes('certifications') ? 'rotate-90' : ''
+                              }`}
+                          />
+                          <span className="font-medium">Certifications</span>
+                        </div>
+                      </Accordion.Trigger>
+                      <Accordion.Content className="px-4 pb-4">
+                        <p>Certifications content</p>
+                      </Accordion.Content>
+                    </Accordion.Item>
+
+                    <Accordion.Item value="awards" className="border border-gray-200 rounded-lg">
+                      <Accordion.Trigger
+                        className="flex items-center justify-between w-full px-4 py-3 hover:bg-gray-50 transition-colors"
+                        onClick={() => handleAccordionChange('awards')}
+                      >
+                        <div className="flex items-center gap-3">
+                          <ChevronRight
+                            className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${openItems.includes('awards') ? 'rotate-90' : ''
+                              }`}
+                          />
+                          <span className="font-medium">Awards & Scholarships</span>
+                        </div>
+                      </Accordion.Trigger>
+                      <Accordion.Content className="px-4 pb-4">
+                        <p>Awards & Scholarships content</p>
+                      </Accordion.Content>
+                    </Accordion.Item>
+
+                    <Accordion.Item value="projects" className="border border-gray-200 rounded-lg">
+                      <Accordion.Trigger
+                        className="flex items-center justify-between w-full px-4 py-3 hover:bg-gray-50 transition-colors"
+                        onClick={() => handleAccordionChange('projects')}
+                      >
+                        <div className="flex items-center gap-3">
+                          <ChevronRight
+                            className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${openItems.includes('projects') ? 'rotate-90' : ''
+                              }`}
+                          />
+                          <span className="font-medium">Projects</span>
+                        </div>
+                      </Accordion.Trigger>
+                      <Accordion.Content className="px-4 pb-4">
+                        <p>Projects content</p>
+                      </Accordion.Content>
+                    </Accordion.Item>
+
+                    <Accordion.Item value="volunteering" className="border border-gray-200 rounded-lg">
+                      <Accordion.Trigger
+                        className="flex items-center justify-between w-full px-4 py-3 hover:bg-gray-50 transition-colors"
+                        onClick={() => handleAccordionChange('volunteering')}
+                      >
+                        <div className="flex items-center gap-3">
+                          <ChevronRight
+                            className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${openItems.includes('volunteering') ? 'rotate-90' : ''
+                              }`}
+                          />
+                          <span className="font-medium">Volunteering & Extracurricular</span>
+                        </div>
+                      </Accordion.Trigger>
+                      <Accordion.Content className="px-4 pb-4">
+                        <p>Volunteering & Extracurricular content</p>
+                      </Accordion.Content>
+                    </Accordion.Item>
+
+                    <Accordion.Item value="references" className="border border-gray-200 rounded-lg">
+                      <Accordion.Trigger
+                        className="flex items-center justify-between w-full px-4 py-3 hover:bg-gray-50 transition-colors"
+                        onClick={() => handleAccordionChange('references')}
+                      >
+                        <div className="flex items-center gap-3">
+                          <ChevronRight
+                            className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${openItems.includes('references') ? 'rotate-90' : ''
+                              }`}
+                          />
+                          <span className="font-medium">References</span>
+                        </div>
+                      </Accordion.Trigger>
+                      <Accordion.Content className="px-4 pb-4">
+                        <p>References content</p>
+                      </Accordion.Content>
+                    </Accordion.Item>
+
                   </Accordion.Root>
                 </TabsContent>
 
@@ -325,7 +425,7 @@ export const ResumeEditor = () => {
             </div>
 
             {/* Right section - 2 columns */}
-            <div className="col-span-2 bg-white rounded-lg border border-gray-200 p-6">
+            <div className="col-span-3 bg-gray-100 p-2 overflow-auto">
               <div className="h-full">
                 {/* Resume canvas area */}
                 <div className="h-full flex items-center justify-center">
@@ -337,37 +437,18 @@ export const ResumeEditor = () => {
                   ) : pdfData ? (
                     <div className="w-full h-full overflow-auto">
                       <Document
-                        file={encodedPdfData ? `data:application/pdf;base64,${encodedPdfData}` : undefined}
+                        file={pdfData}
                         onLoadSuccess={onDocumentLoadSuccess}
                         className="mx-auto"
                       >
-                        <Page 
-                          pageNumber={pageNumber} 
-                          width={600}
-                          className="shadow-lg"
-                        />
+                        {Array.from(new Array(numPages), (el, index) => (
+                          <Page
+                            key={`page_${index + 1}`}
+                            pageNumber={index + 1}
+                            className="shadow-lg mt-4 mr-5 mb-5 ml-4"
+                          />
+                        ))}
                       </Document>
-                      {numPages > 1 && (
-                        <div className="flex justify-center mt-4 gap-2">
-                          <button
-                            onClick={() => setPageNumber(Math.max(1, pageNumber - 1))}
-                            disabled={pageNumber <= 1}
-                            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-                          >
-                            Previous
-                          </button>
-                          <span className="px-3 py-1">
-                            Page {pageNumber} of {numPages}
-                          </span>
-                          <button
-                            onClick={() => setPageNumber(Math.min(numPages, pageNumber + 1))}
-                            disabled={pageNumber >= numPages}
-                            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-                          >
-                            Next
-                          </button>
-                        </div>
-                      )}
                     </div>
                   ) : (
                     <div className="text-gray-500 text-center">
@@ -378,7 +459,9 @@ export const ResumeEditor = () => {
                 </div>
               </div>
             </div>
+
           </div>
+          
         </main>
       </Tabs>
     </div>

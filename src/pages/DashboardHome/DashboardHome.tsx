@@ -10,6 +10,7 @@ import { DatePicker } from 'antd';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { toast } from 'react-hot-toast';
+import { useJobsContext } from '../../contexts/JobsContext';
 
 interface CareerGoal {
     title: string
@@ -39,8 +40,8 @@ const CURRENCY_OPTIONS = [
 ]
 
 export const DashboardHome = (): JSX.Element => {
+  const { getJobStatusCounts } = useJobsContext();
   const [goal, setGoal] = useState(5);
-  const [applications] = useState(3);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isWeeklyGoalDialogOpen, setIsWeeklyGoalDialogOpen] = useState(false);
   const [inputGoal, setInputGoal] = useState(goal.toString());
@@ -53,6 +54,26 @@ export const DashboardHome = (): JSX.Element => {
     currency: 'VND'
   });
   const [tempCareerGoal, setTempCareerGoal] = useState<CareerGoal>(careerGoal);
+
+  // Get real-time job status counts
+  const statusCounts = getJobStatusCounts();
+  
+  // Calculate applications count dynamically
+  const applications = statusCounts['Applied'] || 0;
+  
+  // Prepare data for the BarChart
+  const chartData = [
+    { name: 'Bookmarked', value: statusCounts['Bookmarked'] || 0, percent: 0 },
+    { name: 'Applied', value: statusCounts['Applied'] || 0, percent: 0 },
+    { name: 'Interviewing', value: statusCounts['Interviewing'] || 0, percent: 0 },
+    { name: 'Negotiating', value: statusCounts['Negotiating'] || 0, percent: 0 },
+  ].filter(item => item.value > 0); // Only show statuses with jobs
+
+  // Calculate percentages
+  const totalJobs = Object.values(statusCounts).reduce((sum, count) => sum + count, 0);
+  chartData.forEach(item => {
+    item.percent = totalJobs > 0 ? Math.round((item.value / totalJobs) * 100) : 0;
+  });
 
   const handleOpenEditGoalsDialog = () => {
     setTempCareerGoal(careerGoal);
@@ -366,16 +387,15 @@ export const DashboardHome = (): JSX.Element => {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       layout="vertical"
-                      data={[
-                        { name: 'Bookmarked', value: 7, percent: 43 },
-                        { name: 'Applied', value: 3, percent: 29 },
-                        { name: 'Interviewing', value: 2, percent: 14 },
-                        { name: 'Negotiating', value: 1, percent: 14 },
-                      ]}
+                      data={chartData}
                       margin={{ top: 10, right: 30, left: 60, bottom: 10 }}
                       barCategoryGap={18}
                     >
-                      <XAxis type="number" hide domain={[0, 7]} />
+                      <XAxis 
+                        type="number" 
+                        hide 
+                        domain={[0, Math.max(...chartData.map(item => item.value), 1)]} 
+                      />
                       <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} width={110} />
                       <Tooltip
                         cursor={{ fill: '#e3f0ff' }}
@@ -384,9 +404,10 @@ export const DashboardHome = (): JSX.Element => {
                       />
                       <Bar dataKey="value" radius={[8, 8, 8, 8]}>
                         <LabelList dataKey="value" position="right" fill="#043873" fontWeight={700} />
-                        {['#b6d6f6', '#5b9cf9', '#1976d2', '#043873'].map((color, idx) => (
-                          <Cell key={idx} fill={color} />
-                        ))}
+                        {chartData.map((_, idx) => {
+                          const colors = ['#b6d6f6', '#5b9cf9', '#1976d2', '#043873'];
+                          return <Cell key={idx} fill={colors[idx % colors.length]} />;
+                        })}
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>

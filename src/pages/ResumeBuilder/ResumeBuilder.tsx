@@ -8,7 +8,7 @@ import { toast, Toaster } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import Joyride from 'react-joyride'
 import type { CallBackProps, Step } from 'react-joyride'
-import { importCv } from '../../services/cvService'
+import { getCvList, importCv, type CvListItem } from '../../services/cvService'
 import { getProfile } from '../../services/authService'
 
 type SortDirection = 'asc' | 'desc' | null
@@ -54,34 +54,34 @@ export const ResumeBuilder = () => {
             }
         }
         
-        const loadCvList = async () => {
+        const loadCvList = async (userId: number) => {
             try {
-                // Load from localStorage since getCvList API doesn't exist yet
-                const savedResumes = localStorage.getItem('resumes')
-                if (savedResumes) {
-                    setResumes(JSON.parse(savedResumes))
-                }
+                const cvs: CvListItem[] = await getCvList(userId)
+                const mappedResumes: Resume[] = cvs.map((cv) => ({
+                    id: cv.id,
+                    name: cv.title,
+                    score: cv.score || Math.floor(Math.random() * 30) + 70, // Fallback score
+                    matchedJob: cv.matchedJob || 'Not matched', // Fallback job
+                    match: cv.match || Math.floor(Math.random() * 20) + 80, // Fallback match
+                    created: cv.created,
+                    lastEdited: cv.lastEdited
+                }))
+                setResumes(mappedResumes)
             } catch (error) {
-                console.error('Error loading CV list from localStorage:', error)
+                console.error('Error loading CV list from API:', error)
+                toast.error('Failed to load resumes')
             }
         }
         
         const initializeData = async () => {
             const userId = await fetchUserProfile()
             if (userId) {
-                await loadCvList()
+                await loadCvList(userId)
             }
         }
         
         initializeData()
     }, [])
-
-    // Save resumes to localStorage whenever resumes change
-    useEffect(() => {
-        if (resumes.length > 0) {
-            localStorage.setItem('resumes', JSON.stringify(resumes))
-        }
-    }, [resumes])
 
     const steps: Step[] = [
         {
@@ -290,7 +290,6 @@ export const ResumeBuilder = () => {
 
     const handleDeleteAllResumes = () => {
         setResumes([])
-        localStorage.removeItem('resumes') // Clear localStorage
         setIsDeleteAllOpen(false)
         toast.success('All resumes deleted successfully')
     }
