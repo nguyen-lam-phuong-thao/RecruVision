@@ -1,32 +1,37 @@
 import { ArrowLeft, Download, Menu, FileText, Palette, BarChart2, Briefcase, FileType, ChevronRight } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '../../components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs'
 import * as Accordion from '@radix-ui/react-accordion'
-import { useState, useEffect } from 'react'
-import { exportView } from '../../services/cvService'
+import { useState, useEffect, useRef } from 'react'
+import { exportView, getCvList } from '../../services/cvService'
 import { getProfile } from '../../services/authService'
 import { Document, Page } from 'react-pdf'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
 import 'react-pdf/dist/esm/Page/TextLayer.css'
 import { pdfjs } from 'react-pdf';
+import { toast } from 'react-hot-toast';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.mjs',
   import.meta.url,
 ).toString();
 
-
-
 export const ResumeEditor = () => {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [openItems, setOpenItems] = useState<string[]>([])
   const [activeTab, setActiveTab] = useState('content')
   const [userId, setUserId] = useState<number | null>(null)
   const [cvId, setCvId] = useState<number | null>(null)
+  const [resumeName, setResumeName] = useState<string>('Untitled Resume')
   const [pdfData, setPdfData] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [numPages, setNumPages] = useState<number>(0)
+  const [isMounted, setIsMounted] = useState(true)
+  const [pdfKey, setPdfKey] = useState<number>(0) // Add key to force PDF component re-render
+  const currentCvIdRef = useRef<number | null>(null) // Track current CV ID to prevent race conditions
 
   const handleAccordionChange = (value: string) => {
     setOpenItems(prev =>
@@ -36,57 +41,155 @@ export const ResumeEditor = () => {
     )
   }
 
+  // Function to cleanup PDF data
+  const cleanupPdfData = () => {
+    if (pdfData) {
+      URL.revokeObjectURL(pdfData)
+      setPdfData(null)
+    }
+    setNumPages(0)
+    setPdfKey(prev => prev + 1) // Force PDF component re-render
+  }
+
   // Load user profile and CV data on component mount
   useEffect(() => {
     const loadData = async () => {
+      setIsInitialLoading(true)
       try {
         // Get user profile
         const profile = await getProfile()
         const currentUserId = profile.data.userId
         setUserId(currentUserId)
 
-        // Get latest CV from localStorage
-        const savedResumes = localStorage.getItem('resumes')
-        if (savedResumes) {
-          const resumes = JSON.parse(savedResumes)
-          if (resumes.length > 0) {
-            // Get the most recent CV (last in the array)
-            const latestCv = resumes[resumes.length - 1]
-            const latestCvId = parseInt(latestCv.id)
-            setCvId(latestCvId)
+        // Get cvId from URL parameters
+        const cvIdFromUrl = searchParams.get('cvId')
+        if (cvIdFromUrl) {
+          const currentCvId = parseInt(cvIdFromUrl)
+          
+          // Check if this is a different CV than the current one
+          if (currentCvIdRef.current !== currentCvId) {
+            // Cleanup previous PDF data before loading new one
+            cleanupPdfData()
+            // Small delay to ensure cleanup is complete
+            await new Promise(resolve => setTimeout(resolve, 100))
+            currentCvIdRef.current = currentCvId
+            setCvId(currentCvId)
+
+            // Get CV details to set resume name
+            try {
+              const cvList = await getCvList(currentUserId)
+              const cvFromList = cvList.find(cv => cv.id === currentCvId.toString())
+              if (cvFromList) {
+                setResumeName(cvFromList.title)
+                console.log('CV found in list:', cvFromList)
+              } else {
+                console.warn('CV not found in list for cvId:', currentCvId)
+                setResumeName('Untitled Resume')
+                // Don't try to load PDF if CV doesn't exist
+                toast.error('Resume not found. Please select a valid resume.')
+                navigate('/app/resume-builder')
+                return
+              }
+            } catch (error) {
+              console.error('Error loading CV list:', error)
+              setResumeName('Untitled Resume')
+              toast.error('Failed to load resume information.')
+              navigate('/app/resume-builder')
+              return
+            }
 
             // Call exportView API to get PDF data
             setIsLoading(true)
             try {
-              const pdfBlob = await exportView(latestCvId, currentUserId, 'PDF', true)
-              const pdfUrl = URL.createObjectURL(pdfBlob)
+              console.log('Loading PDF for cvId:', currentCvId, 'userId:', currentUserId)
+              const pdfBlob = await exportView(currentCvId, currentUserId, 'PDF', true)
+              // Check if component is still mounted and CV hasn't changed
+              if (!isMounted || currentCvIdRef.current !== currentCvId) return
+              
+              console.log('PDF blob received:', {
+                size: pdfBlob.size,
+                type: pdfBlob.type
+              })
+              
+              // Validate that we received a valid blob
+              if (!pdfBlob || pdfBlob.size === 0) {
+                throw new Error('Invalid PDF data received')
+              }
+              
+              // Check if blob is actually a PDF
+              if (pdfBlob.type !== 'application/pdf') {
+                console.warn('Received blob is not a PDF:', pdfBlob.type)
+              }
+              
+              // Create blob URL with proper type
+              const pdfUrl = URL.createObjectURL(new Blob([pdfBlob], { type: 'application/pdf' }))
+              console.log('PDF URL created:', pdfUrl)
               setPdfData(pdfUrl)
             } catch (error) {
               console.error('Error loading PDF:', error)
+              if (isMounted && currentCvIdRef.current === currentCvId) {
+                setPdfData(null)
+                // Show user-friendly error message
+                toast.error('Failed to load PDF. The resume may not exist or may be corrupted.')
+              }
             } finally {
-              setIsLoading(false)
+              if (isMounted && currentCvIdRef.current === currentCvId) {
+                setIsLoading(false)
+              }
             }
           }
+        } else {
+          console.error('No cvId provided in URL parameters')
+          toast.error('No resume selected. Please select a resume from the list.')
+          // Navigate back to resume builder if no cvId is provided
+          navigate('/app/resume-builder')
         }
       } catch (error) {
         console.error('Error loading user profile:', error)
+      } finally {
+        setIsInitialLoading(false)
       }
     }
 
     loadData()
-  }, [])
+  }, [searchParams, navigate])
 
   const handleRefreshPDF = async () => {
     if (userId && cvId) {
       setIsLoading(true)
       try {
         const pdfBlob = await exportView(cvId, userId, 'PDF', true)
-        const pdfUrl = URL.createObjectURL(pdfBlob)
+        // Check if component is still mounted and CV hasn't changed
+        if (!isMounted || currentCvIdRef.current !== cvId) return
+        
+        // Validate that we received a valid blob
+        if (!pdfBlob || pdfBlob.size === 0) {
+          throw new Error('Invalid PDF data received')
+        }
+        
+        // Check if blob is actually a PDF
+        if (pdfBlob.type !== 'application/pdf') {
+          console.warn('Received blob is not a PDF:', pdfBlob.type)
+        }
+        
+        // Cleanup previous PDF data if exists
+        cleanupPdfData()
+        // Small delay to ensure cleanup is complete
+        await new Promise(resolve => setTimeout(resolve, 100))
+        
+        // Create blob URL with proper type
+        const pdfUrl = URL.createObjectURL(new Blob([pdfBlob], { type: 'application/pdf' }))
         setPdfData(pdfUrl)
       } catch (error) {
         console.error('Error refreshing PDF:', error)
+        if (isMounted && currentCvIdRef.current === cvId) {
+          setPdfData(null)
+          toast.error('Failed to refresh PDF. Please try again.')
+        }
       } finally {
-        setIsLoading(false)
+        if (isMounted && currentCvIdRef.current === cvId) {
+          setIsLoading(false)
+        }
       }
     }
   }
@@ -95,7 +198,35 @@ export const ResumeEditor = () => {
     setNumPages(numPages)
   }
 
+  const onDocumentLoadError = (error: Error) => {
+    console.error('Error loading PDF document:', error)
+    // Only show error if this is still the current CV
+    if (currentCvIdRef.current === cvId) {
+      setPdfData(null)
+      toast.error('Failed to display PDF. Please try refreshing the page.')
+    }
+  }
 
+  // Cleanup PDF data when component unmounts
+  useEffect(() => {
+    return () => {
+      setIsMounted(false)
+      cleanupPdfData()
+    }
+  }, [])
+
+  // Handle URL parameter changes
+  useEffect(() => {
+    const cvIdFromUrl = searchParams.get('cvId')
+    if (cvIdFromUrl) {
+      const newCvId = parseInt(cvIdFromUrl)
+      if (currentCvIdRef.current !== newCvId) {
+        console.log('CV ID changed from', currentCvIdRef.current, 'to', newCvId)
+        // Trigger a re-render by updating the key
+        setPdfKey(prev => prev + 1)
+      }
+    }
+  }, [searchParams])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -113,7 +244,7 @@ export const ResumeEditor = () => {
                 <span className="text-sm font-medium">Back</span>
               </button>
               <div className="h-6 w-px bg-gray-200" />
-              <h1 className="text-lg font-semibold text-gray-900">Untitled Resume</h1>
+              <h1 className="text-lg font-semibold text-gray-900">{resumeName}</h1>
             </div>
 
             {/* Right section - Action buttons */}
@@ -429,7 +560,12 @@ export const ResumeEditor = () => {
               <div className="h-full">
                 {/* Resume canvas area */}
                 <div className="h-full flex items-center justify-center">
-                  {isLoading ? (
+                  {isInitialLoading ? (
+                    <div className="text-gray-500">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                      <p>Loading resume...</p>
+                    </div>
+                  ) : isLoading ? (
                     <div className="text-gray-500">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
                       <p>Loading PDF...</p>
@@ -437,15 +573,43 @@ export const ResumeEditor = () => {
                   ) : pdfData ? (
                     <div className="w-full h-full overflow-auto">
                       <Document
+                        key={pdfKey}
                         file={pdfData}
                         onLoadSuccess={onDocumentLoadSuccess}
+                        onLoadError={onDocumentLoadError}
                         className="mx-auto"
+                        loading={
+                          <div className="text-gray-500">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                            <p>Loading PDF document...</p>
+                          </div>
+                        }
+                        error={
+                          <div className="text-red-500 text-center p-4">
+                            <p>Failed to load PDF</p>
+                            <p className="text-sm">The resume may not exist or may be corrupted</p>
+                            <button 
+                              onClick={handleRefreshPDF}
+                              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                              Try Again
+                            </button>
+                          </div>
+                        }
                       >
-                        {Array.from(new Array(numPages), (el, index) => (
+                        {Array.from(new Array(numPages), ( index) => (
                           <Page
                             key={`page_${index + 1}`}
                             pageNumber={index + 1}
                             className="shadow-lg mt-4 mr-5 mb-5 ml-4"
+                            loading={
+                              <div className="animate-pulse bg-gray-200 h-[800px] w-[600px] rounded"></div>
+                            }
+                            error={
+                              <div className="text-red-500 text-center p-4">
+                                <p>Failed to load page {index + 1}</p>
+                              </div>
+                            }
                           />
                         ))}
                       </Document>
@@ -453,7 +617,13 @@ export const ResumeEditor = () => {
                   ) : (
                     <div className="text-gray-500 text-center">
                       <p>No resume data available</p>
-                      <p className="text-sm">Please import a resume first</p>
+                      <p className="text-sm mb-4">The resume may not exist or may be corrupted</p>
+                      <button 
+                        onClick={() => navigate('/app/resume-builder')}
+                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                      >
+                        Back to Resume List
+                      </button>
                     </div>
                   )}
                 </div>

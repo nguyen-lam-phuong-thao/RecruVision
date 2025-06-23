@@ -32,7 +32,7 @@ interface ExportViewRequest {
   exportFormat: string;
   includeAnalysis: boolean;
 }
-// hàm này chưa có api thật
+
 export const getCvList = async (userId: number): Promise<CvListItem[]> => {
   const response = await api.get(`/api/Cv/user/${userId}`);
   const cvs = response.data?.cvs || [];
@@ -80,6 +80,7 @@ export const importCv = async (
   
   return response.data;
 }; 
+
 //Xuất pdf
 export const exportView = async (
   cvId: number, 
@@ -98,5 +99,16 @@ export const exportView = async (
     responseType: 'blob' 
   });
 
+  // Validate response
+  if (!response.data || response.data.size === 0) {
+    throw new Error('Empty response from server')
+  }
+
+  // Check if response is actually a PDF
+  const contentType = response.headers['content-type']
+  if (contentType && !contentType.includes('application/pdf')) {
+    console.warn('Server returned non-PDF content type:', contentType)
+  }
+
   return response.data; // Đây là Blob (PDF binary)
-};
+}; 
